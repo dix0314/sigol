@@ -244,7 +244,7 @@
     display: flex; align-items: center; overflow: hidden; border-radius: 7px;
     background: var(--bg);                                                        /* 1~5번 색: 그라데이션 없이 단색 */
     color: var(--fg);
-    font: 600 11.5px/1 var(--font-body); letter-spacing: -.2px; white-space: nowrap;
+    font: 500 11.5px/1 var(--font-body); letter-spacing: -.2px; white-space: nowrap;
   }
   .bar::before { content: ''; position: absolute; left: 3px; top: 4px; bottom: 4px; width: 3px; border-radius: 2px; background: var(--c); }
   .bar::after {
@@ -283,10 +283,10 @@
   .seg { display: flex; gap: 6px; margin: 22px 4px 12px; }
   .segb {
     flex: 0 0 auto; height: 34px; padding: 0 15px; border: 0; border-radius: 999px; background: var(--grey); color: var(--sub);
-    display: inline-flex; align-items: center; gap: 6px; font: 400 15px var(--font-title); -webkit-text-stroke: .35px currentColor; letter-spacing: .3px;
+    display: inline-flex; align-items: center; gap: 6px; font: 700 15px var(--font-body);
   }
   .segb.on { background: var(--hot); color: #fff; }
-  .segb .cnt { font: 400 12px/1 var(--font-title); -webkit-text-stroke: .3px currentColor; padding: 4px 8px; border-radius: 999px; background: #fff; color: var(--hot); }
+  .segb .cnt { font: 800 12px/1 var(--font-body); padding: 4px 8px; border-radius: 999px; background: #fff; color: var(--hot); }
   .segb:not(.on) .cnt { background: #fff; color: #6b6b78; box-shadow: 0 0 0 1px #dedee6; }
 
   /* ---------- 예약 카드 ---------- */
@@ -337,6 +337,7 @@
   .st { flex: 0 0 auto; display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 9px; font: 700 12px/1 var(--font-body); background: #ffe3ea; color: #e0426a; }
   .st.come { background: var(--hot); color: #fff; }
   .st.stay { background: #f0f0f4; color: #7a7a86; }
+  .st.go { background: #c2335d; color: #fff; }                              /* 가는 날: 짙은 분홍 (오는 날 분홍과 구분) */
   /* 오는 날 · 가는 날 · 머무는 중 앞 기호: 글자와 같은 색 (예약 창의 "오는 일정 · 가는 일정"과 같은 모양) */
   .st .sti { flex: none; display: block; margin: -2px 3px -2px -1px; }
   /* 전체 예약의 "N일 뒤": 카드 색을 따라가고 조금 진하게, 안으로 살짝 파인 느낌 */
@@ -361,11 +362,6 @@
   .bk-dates .dl { grid-row: 2; grid-column: 1; display: flex; align-items: center; min-width: 0; margin-top: 3px; }
   .bk-dates .val { font: 400 14px/1.2 var(--font-title); color: var(--ink); white-space: nowrap; -webkit-text-stroke: .35px currentColor; }
   .bk-dates .val.go { grid-row: 2; grid-column: 2; margin-top: 3px; }
-  /* 가는 날: 카드 색 옅은 바탕 칩 + 짙은 카드 색 글자 → 한눈에 보이게 (글자 위치는 "가는 날" 글자와 나란히) */
-  .bk-dates .val.go { justify-self: start; margin-left: -6px; margin-top: 1px; padding: 2px 6px; border-radius: 7px; color: var(--fg);
-    background: rgba(255, 255, 255, .7); background: color-mix(in srgb, var(--c) 15%, #fff); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 22%, transparent); }
-  .bk-dates .val.go .dw { color: inherit; opacity: .75; }
-  .bk.mix .bk-dates .val.go { background: rgba(255, 255, 255, .65); box-shadow: inset 0 0 0 1px rgba(120, 70, 160, .18); }
   .bk-dates .val .dw { color: #5e5e68; }
   /* 시간 칸은 항상 "오후 12:00" 폭으로 고정 → 1:00 · 시간 미정이어도 선이 같은 곳에서 시작 */
   .bk-dates .tm { display: inline-grid; margin-left: 6px; color: #e0426a; }
@@ -1753,7 +1749,7 @@
     var tk = todayKey(), st;
     if (day) {
       st = b.come === day ? '<span class="st come ic">' + ST_IN + "오는 날</span>"
-        : b.go === day ? '<span class="st ic">' + ST_OUT + "가는 날</span>"
+        : b.go === day ? '<span class="st go ic">' + ST_OUT + "가는 날</span>"
         : '<span class="st stay ic">' + ST_ZZ + "머무는 중</span>";
     } else {
       st = b.come > tk ? '<span class="st later">' + dayDiff(tk, b.come) + "일 뒤</span>"   // 카드 색을 따라감
@@ -2676,8 +2672,8 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.23e";
-  var UPD_NOTE = "글자 크기 · 가는 날 표시가 바뀌었어요";
+  var APP_VERSION = "2026.11.23f";
+  var UPD_NOTE = "가는 날 표시 · 글자를 다듬었어요";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }

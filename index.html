@@ -461,8 +461,8 @@
   .stm.none { color: #b0b0ba; }
   .snt { margin-left: auto; font-size: 13px; color: var(--rose); }
   /* 예약하기 · 예약 수정 · 예약 정보 제목: 왼쪽에 막대 (모두 같은 모양) */
-  #sheetbg h3, #actbg h3 { position: relative; padding-left: 14px; line-height: 1.15; }
-  #sheetbg h3::before, #actbg h3::before { content: ''; position: absolute; left: 0; top: 1px; bottom: 1px; width: 4px; border-radius: 2px; background: var(--hot); }
+  #sheetbg h3, #actbg h3, #updbg h3 { position: relative; padding-left: 14px; line-height: 1.15; }
+  #sheetbg h3::before, #actbg h3::before, #updbg h3::before { content: ''; position: absolute; left: 0; top: 1px; bottom: 1px; width: 4px; border-radius: 2px; background: var(--hot); }
   .flab { display: flex; align-items: center; justify-content: space-between; min-height: 30px; margin-top: 10px; font: 700 14px var(--font-body); color: var(--sub); }
   .flab .chip { height: 30px; padding: 0 12px; font-size: 13px; }
   .frow { display: flex; gap: 8px; margin-top: 4px; }
@@ -559,7 +559,8 @@
     box-shadow: inset 0 1.5px 3.5px rgba(160, 30, 70, .32), inset 0 -1px 0 rgba(255, 255, 255, .6); }
   .pop .actions { margin-top: 14px; }
   .pop .actions button { height: 48px; }
-  #sheetbg .actions { margin-top: 18px; }
+  #sheetbg .actions { margin-top: 22px; }                                   /* 예약 정보 창과 같은 간격 */
+  #sheetbg h3 + .flab { margin-top: 6px; }
   #sheetbg .actions button { height: 48px; font-size: 16px; }                 /* 취소 · 저장 = 삭제하기 · 수정하기와 같은 크기 */
   .popbg[data-k="date"] #popTime, .popbg[data-k="time"] #popDate, .popbg[data-k="date"] #edNoTime { display: none; }
   .popbg[data-k="time"] .pop-tag { display: none; }
@@ -672,15 +673,15 @@
   /* 예약을 누르면 올라오는 창: 흰 바탕 + 메인 화면 목록과 똑같은 예약 카드 */
   #actbg .sheet { position: relative; }
   #actbg .b-cancel { background: var(--grey); }
-  #acCard .bk { margin: 14px 0 0; cursor: default; }
+  #acCard .bk { margin: 8px 0 0; cursor: default; }                          /* 카드: 제목 바로 아래로 조금 더 위 */
   #acCard .bk:active { transform: none; }
   .achead h3 { white-space: nowrap; }
   /* 끝난 일정을 열었을 때: 수정 · 삭제 버튼 대신 자물쇠 안내 + 닫기 */
   /* 카드 밑 안내 한 줄: 일반 예약 = 남은 날 / 끝난 일정 = 자물쇠 + 종료 (둘 다 안내 + 48px 버튼 → 창 크기 같음) */
-  .acnote { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 16px; font: 600 13px/1.35 var(--font-body); color: #8a8a96; text-align: center; word-break: keep-all; }
+  .acnote { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 14px; font: 600 13px/1.35 var(--font-body); color: #8a8a96; text-align: center; word-break: keep-all; }
   .acnote b { color: #4a4a55; font-weight: 700; }
-  #actbg .hbtns { margin-top: 12px; }
-  .acdone { display: none; margin-top: 12px; }
+  #actbg .hbtns { margin-top: 22px; }                                      /* 안내 ↔ 버튼 사이 넉넉하게 */
+  .acdone { display: none; margin-top: 22px; }
   #actbg .sheet.ended .hbtns { display: none; }
   #actbg .sheet.ended .acdone { display: block; }
   .acnote svg { flex: none; }
@@ -842,6 +843,14 @@
   @media (prefers-reduced-motion: reduce) { .upd { transition: opacity .2s; } }
 
   #gate[hidden], #arrow[hidden] { display: none !important; }
+  /* 강제 업데이트 창 */
+  #updbg { z-index: 95; }
+  .updmsg { display: flex; align-items: center; gap: 12px; margin-top: 12px; padding: 14px; border-radius: 14px; background: var(--soft); }
+  .updmsg .ui { flex: none; width: 40px; height: 40px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; color: var(--rose); }
+  .updmsg b { display: block; font: 700 15px/1.3 var(--font-body); color: var(--ink); }
+  .updmsg small { display: block; margin-top: 2px; font: 500 13px/1.35 var(--font-body); color: #8a8a96; }
+  #updbg .actions { margin-top: 22px; }
+  #updbg .actions button { height: 48px; font-size: 16px; }
   /* 안드로이드 하단(제스처 · 버튼 막대) 자리 분홍: 폰이 앱 화면을 하단 막대 뒤까지 그릴 때만 보임 (아니면 높이 0) */
   .navfill { display: none; position: fixed; left: 0; right: 0; bottom: 0; height: env(safe-area-inset-bottom); z-index: 200; background: var(--hot); pointer-events: none; }
   .android .navfill { display: block; }
@@ -950,6 +959,14 @@
   </div>
 
   <div class="toast" id="toast"></div>
+  <!-- 새 버전 업데이트 (강제): 예약하기 창과 같은 모양 · 바깥을 눌러도 닫히지 않음 → "지금 업데이트"를 눌러야 함 -->
+  <div class="sheetbg" id="updbg">
+    <div class="sheet">
+      <h3>업데이트</h3>
+      <div class="updmsg"><span class="ui" id="updIco"></span><span><b>새 버전이 준비됐어요</b><small>업데이트하면 새 버전으로 다시 열려요.</small></span></div>
+      <div class="actions"><button class="b-save" id="updGo">지금 업데이트</button></div>
+    </div>
+  </div>
   <div class="navfill" aria-hidden="true"></div>
   <button class="upd" id="upd" aria-live="polite"></button>
 
@@ -1343,7 +1360,7 @@
   // 일정 카드 상태 칩 앞 동그라미 기호: 오는 일정 / 가는 일정 (예약 창과 같은 그림) / 머무는 중 Zᶻ
   var ST_IN = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M3 12h11M10 8l4 4-4 4"/></svg>';
   var ST_OUT = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M10 12h11M17 8l4 4-4 4"/></svg>';
-  var ST_DONE = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 12.6l3.6 3.5 7.4-7.6"/></svg>';   // 굵고 짧은 뭉툭한 체크
+  var ST_DONE = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   function isDone(b) { return b.go < todayKey(); }                 // 끝난 일정 = 가는 날이 오늘보다 앞
   var ST_ZZ = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5h8l-8 9.5h8"/><path d="M15 3.5h5.5l-5.5 6.5h5.5" stroke-width="2"/></svg>';
   // 나무(잎) 아이콘 — 앱 아이콘과 같은 그림: 분홍 잎(위가 뾰족 · 아래 둥긂) + 끝부분은 옅게 + 흰 줄기 · 가지 둘 + 아래 꼭지
@@ -2099,10 +2116,9 @@
   function actNote(b) {
     var tk = todayKey(), nm = "<b>" + esc(b.text) + "</b>";
     if (isDone(b)) return NOTE_LOCK + "<span>종료된 일정입니다.</span>";
-    var t = b.come > tk ? nm + " 일정까지 " + dayDiff(tk, b.come) + "일이 남아있어요."   // 오기 전
-      : b.come === tk ? nm + " 일정이 오늘 시작돼요."                                    // 오는 날 = 오늘
-      : b.go === tk ? nm + " 일정이 오늘 끝나요."                                        // 가는 날 = 오늘
-      : nm + " 일정이 " + dayDiff(tk, b.go) + "일 뒤에 끝나요.";                         // 머무는 중
+    var t = b.come > tk ? nm + "까지 " + dayDiff(tk, b.come) + "일이 남았어요."         // 앞으로의 일정
+      : b.come === tk ? "오늘은 " + nm + "님이 오는 날입니다."                           // 오늘 오는 날
+      : nm + "님이 머물러 있어요.";                                                     // 머무는 중 · 가는 날
     return NOTE_CLOCK + "<span>" + t + "</span>";
   }
   // 수정하기: 예약 창을 닫지 않고, 그 창이 위로 늘어나며 예약 수정 창으로 바뀜
@@ -2835,7 +2851,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.23k";
+  var APP_VERSION = "2026.11.23l";
   var UPD_NOTE = "끝난 일정도 달력에서 볼 수 있어요";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -2860,12 +2876,28 @@
   set(VER_KEY, APP_VERSION);
   if (used && prev !== APP_VERSION) setTimeout(function () { show("새 버전으로 업데이트됐어요", UPD_NOTE); }, 1400);   // 제목 글씨가 다 그어진 뒤
 
+  // 강제 업데이트: 새 버전 파일을 다 받으면 업데이트 창이 올라오고, "지금 업데이트"를 눌러야만 계속 쓸 수 있음
+  //  · 앱을 다시 볼 때마다(다른 앱에서 돌아올 때) 새 버전이 있는지 확인
+  function forceUpdate() {
+    var bg = document.getElementById("updbg");
+    if (bg.classList.contains("open")) return;
+    document.getElementById("updIco").innerHTML = window.ICON_TREE || "";
+    bg.classList.add("open");
+    document.body.style.overflow = "hidden";
+  }
+  document.getElementById("updGo").addEventListener("click", function () {
+    this.disabled = true; this.textContent = "업데이트 중…";
+    location.reload();
+  });
   if ("serviceWorker" in navigator) {
-    var had = !!navigator.serviceWorker.controller;
-    navigator.serviceWorker.addEventListener("controllerchange", function () {
-      if (had) show("새 버전이 있어요", "누르면 새 버전으로 열려요", "열기", true);
+    var had = !!navigator.serviceWorker.controller, swReg = null;
+    navigator.serviceWorker.addEventListener("controllerchange", function () { if (had) forceUpdate(); });
+    window.addEventListener("load", function () {
+      navigator.serviceWorker.register("sw.js").then(function (r) { swReg = r; }).catch(function () {});
     });
-    window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible" && swReg) swReg.update().catch(function () {});
+    });
   }
 })();
 </script>

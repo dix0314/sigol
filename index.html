@@ -73,6 +73,10 @@
     --bar: 21px;          /* 일정 막대 높이 */
     --bgap: 3px;          /* 막대 사이 간격 */
     --maxw: 520px;        /* 넓은 화면에서 최대 폭 (폴더블 · 태블릿 · PC) */
+    /* 아래에서 올라오는 창(예약 정보 · 예약하기 · 예약 수정 · 업데이트) 간격: 여기만 바꾸면 모든 창에 같이 적용 */
+    --sh-top: 8px;        /* 제목 ↔ 첫 내용 (예약 정보 카드) */
+    --sh-note: 14px;      /* 카드 ↔ 안내 한 줄 */
+    --sh-btn: 11px;       /* 내용(안내) ↔ 아래 버튼 */
   }
   * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
   body { font-variant-numeric: tabular-nums; }
@@ -559,7 +563,7 @@
     box-shadow: inset 0 1.5px 3.5px rgba(160, 30, 70, .32), inset 0 -1px 0 rgba(255, 255, 255, .6); }
   .pop .actions { margin-top: 14px; }
   .pop .actions button { height: 48px; }
-  #sheetbg .actions { margin-top: 22px; }                                   /* 예약 정보 창과 같은 간격 */
+  #sheetbg .actions { margin-top: var(--sh-btn); }                          /* 예약 정보 창과 같은 간격 (:root --sh-btn) */
   #sheetbg h3 + .flab { margin-top: 6px; }
   #sheetbg .actions button { height: 48px; font-size: 16px; }                 /* 취소 · 저장 = 삭제하기 · 수정하기와 같은 크기 */
   .popbg[data-k="date"] #popTime, .popbg[data-k="time"] #popDate, .popbg[data-k="date"] #edNoTime { display: none; }
@@ -673,19 +677,19 @@
   /* 예약을 누르면 올라오는 창: 흰 바탕 + 메인 화면 목록과 똑같은 예약 카드 */
   #actbg .sheet { position: relative; }
   #actbg .b-cancel { background: var(--grey); }
-  #acCard .bk { margin: 8px 0 0; cursor: default; }                          /* 카드: 제목 바로 아래로 조금 더 위 */
+  #acCard .bk { margin: var(--sh-top) 0 0; cursor: default; }
   #acCard .bk:active { transform: none; }
   .achead h3 { white-space: nowrap; }
   /* 끝난 일정을 열었을 때: 수정 · 삭제 버튼 대신 자물쇠 안내 + 닫기 */
   /* 카드 밑 안내 한 줄: 일반 예약 = 남은 날 / 끝난 일정 = 자물쇠 + 종료 (둘 다 안내 + 48px 버튼 → 창 크기 같음) */
-  .acnote { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: 14px; font: 600 13px/1.35 var(--font-body); color: #8a8a96; text-align: center; word-break: keep-all; }
+  .acnote { display: flex; align-items: center; justify-content: center; gap: 4px; margin-top: var(--sh-note); font: 600 13px/1.35 var(--font-body); color: #8a8a96; text-align: center; word-break: keep-all; }
   .acnote b { color: #4a4a55; font-weight: 700; }
-  #actbg .hbtns { margin-top: 22px; }                                      /* 안내 ↔ 버튼 사이 넉넉하게 */
-  .acdone { display: none; margin-top: 22px; }
-  #actbg .sheet.ended .hbtns { display: none; }
-  #actbg .sheet.ended .acdone { display: block; }
+  #actbg .hbtns { margin-top: var(--sh-btn); }
   .acnote svg { flex: none; }
-  .acdone button { width: 100%; height: 48px; border: 0; border-radius: 14px; font: 700 16px var(--font-body); }
+  /* 끝난 일정 / 앞으로의 일정: 같은 버튼 줄 하나를 같이 씀 — 끝난 일정은 [삭제하기 | 수정하기] 대신 [닫기] 하나만 보임 */
+  #acDone { display: none; }
+  #actbg .sheet.ended #acDel, #actbg .sheet.ended #acEdit { display: none; }
+  #actbg .sheet.ended #acDone { display: block; }
 
   /* =============================================================
      예약 삭제 확인 — 예약 창 안에서 (다른 화면으로 넘어가지 않고 그 자리에서 바뀜)
@@ -849,7 +853,7 @@
   .updmsg .ui { flex: none; width: 40px; height: 40px; border-radius: 50%; background: #fff; display: flex; align-items: center; justify-content: center; color: var(--rose); }
   .updmsg b { display: block; font: 700 15px/1.3 var(--font-body); color: var(--ink); }
   .updmsg small { display: block; margin-top: 2px; font: 500 13px/1.35 var(--font-body); color: #8a8a96; }
-  #updbg .actions { margin-top: 22px; }
+  #updbg .actions { margin-top: var(--sh-btn); }
   #updbg .actions button { height: 48px; font-size: 16px; }
   /* 안드로이드 하단(제스처 · 버튼 막대) 자리 분홍: 폰이 앱 화면을 하단 막대 뒤까지 그릴 때만 보임 (아니면 높이 0) */
   .navfill { display: none; position: fixed; left: 0; right: 0; bottom: 0; height: env(safe-area-inset-bottom); z-index: 200; background: var(--hot); pointer-events: none; }
@@ -905,22 +909,19 @@
           <div class="cfm-q">이 예약을 삭제할까요?</div>
         </div>
       </div>
-      <!-- 카드 밑 안내: "○○ 일정까지 N일이 남아있어요." / 끝난 일정은 "종료된 일정입니다." -->
+      <!-- 카드 밑 안내: 앞으로 "○○까지 N일 남았어요." · 오늘 "오늘은 ○○님이 오는 날입니다." · 머무는 중 "○○님이 머물러 있어요." / 끝난 일정 "종료된 일정입니다." -->
       <div class="acnote" id="acNote"></div>
       <!-- 버튼: [삭제하기 | 수정하기] ↔ [삭제 | 취소] 같은 자리 · 같은 크기 (삭제 버튼은 2초 뒤에 눌림) -->
       <div class="hbtns">
         <div class="hlist">
           <button class="b-del" id="acDel">삭제하기</button>
           <button class="b-save" id="acEdit">수정하기</button>
+          <button class="b-cancel" id="acDone">닫기</button>
         </div>
         <div class="actions delact">
           <button class="b-kill" id="delOk" disabled><svg class="kline" aria-hidden="true"><rect/></svg><i class="kwave"></i><span>삭제</span><i class="kfill"><span>삭제</span></i></button>
           <button class="b-cancel" id="delCancel">취소</button>
         </div>
-      </div>
-      <!-- 끝난 일정: 수정 · 삭제 버튼 대신 닫기 -->
-      <div class="acdone">
-        <button class="b-cancel" id="acDone">닫기</button>
       </div>
     </div>
   </div>
@@ -1360,7 +1361,7 @@
   // 일정 카드 상태 칩 앞 동그라미 기호: 오는 일정 / 가는 일정 (예약 창과 같은 그림) / 머무는 중 Zᶻ
   var ST_IN = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M3 12h11M10 8l4 4-4 4"/></svg>';
   var ST_OUT = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M10 12h11M17 8l4 4-4 4"/></svg>';
-  var ST_DONE = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  var ST_DONE = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11.2L12 4.5l8 6.7"/><path d="M6.5 9.5v10h11v-10"/></svg>';   // 집: 손님이 집으로 돌아감 = 일정 끝
   function isDone(b) { return b.go < todayKey(); }                 // 끝난 일정 = 가는 날이 오늘보다 앞
   var ST_ZZ = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5h8l-8 9.5h8"/><path d="M15 3.5h5.5l-5.5 6.5h5.5" stroke-width="2"/></svg>';
   // 나무(잎) 아이콘 — 앱 아이콘과 같은 그림: 분홍 잎(위가 뾰족 · 아래 둥긂) + 끝부분은 옅게 + 흰 줄기 · 가지 둘 + 아래 꼭지
@@ -1835,7 +1836,7 @@
         : '<span class="st stay ic">' + ST_ZZ + "머무는 중</span>";
     }
     var done = isDone(b);
-    if (done) st = '<span class="st done ic">' + ST_DONE + "끝난 일정</span>";
+    if (done) st = '<span class="st done ic">' + ST_DONE + "일정 끝</span>";
     var c = colorOf(b), n = Math.max(0, dayDiff(b.come, b.go)), mix = colorNo(b) === MIX;
     // 오늘이 오는 날 ~ 가는 날 사이 (오늘 일정 · 진행 중) → 움직이는 효과 (다시 그려도 이어지게 시간에 맞춘 시작점)
     var wait = b.pend || b.editPending;                              // 등록 · 수정 대기중 (서버 저장 전)
@@ -2116,7 +2117,7 @@
   function actNote(b) {
     var tk = todayKey(), nm = "<b>" + esc(b.text) + "</b>";
     if (isDone(b)) return NOTE_LOCK + "<span>종료된 일정입니다.</span>";
-    var t = b.come > tk ? nm + "까지 " + dayDiff(tk, b.come) + "일이 남았어요."         // 앞으로의 일정
+    var t = b.come > tk ? nm + "까지 " + dayDiff(tk, b.come) + "일 남았어요."         // 앞으로의 일정
       : b.come === tk ? "오늘은 " + nm + "님이 오는 날입니다."                           // 오늘 오는 날
       : nm + "님이 머물러 있어요.";                                                     // 머무는 중 · 가는 날
     return NOTE_CLOCK + "<span>" + t + "</span>";
@@ -2851,7 +2852,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.23l";
+  var APP_VERSION = "2026.11.23m";
   var UPD_NOTE = "끝난 일정도 달력에서 볼 수 있어요";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
@@ -2898,6 +2899,8 @@
     document.addEventListener("visibilitychange", function () {
       if (document.visibilityState === "visible" && swReg) swReg.update().catch(function () {});
     });
+    // 앱을 끄지 않고 계속 켜 둔 경우에도: 화면이 켜져 있는 동안 30분마다 새 버전 확인
+    setInterval(function () { if (document.visibilityState === "visible" && swReg) swReg.update().catch(function () {}); }, 30 * 60 * 1000);
   }
 })();
 </script>

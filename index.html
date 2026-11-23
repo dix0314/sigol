@@ -261,10 +261,15 @@
   .bar.l::after { left: -2px; }                                                          /* 이어지는 쪽은 테두리 없음 */
   .bar.r { border-top-right-radius: 0; border-bottom-right-radius: 0; }                  /* 다음 주로 이어짐 */
   .bar.r::after { right: -2px; }
-  .bar.past { opacity: .45; }
+  /* 끝난 일정 막대: 색은 남기고 채도를 빼서 차분하게 (6색 모두 같은 규칙 · 6번은 옅은 세 색) */
+  .bar.past { background: color-mix(in srgb, var(--bg) 42%, #f0f0f3); color: color-mix(in srgb, var(--fg) 45%, #a3a3ad); }
+  .bar.past::before { background: color-mix(in srgb, var(--c) 38%, #d3d3db); }
+  .bar.past::after { box-shadow: inset 0 0 0 1px rgba(40, 30, 60, .06); }
   /* 6번 색(단체): 막대 바탕 · 왼쪽 띠 모두 여러 색을 섞어서 */
   .bar.mix { background: linear-gradient(90deg, #ffdee7 0%, #ece2fd 50%, #d9f3ea 100%); }
   .bar.mix::before { background: linear-gradient(180deg, #ff86a3, #b98cf0, #6fcfb6); }
+  .bar.mix.past { background: linear-gradient(90deg, #f5e8ed 0%, #eeeaf6 50%, #e7f1ed 100%); color: #8c7a9c; }
+  .bar.mix.past::before { background: linear-gradient(180deg, #e3b0be, #cdbbe2, #addacd); }
   /* 저장 중인 새 예약: 살짝 투명 + 누를 수 없음 */
   .bar.pend, .bk.pend { pointer-events: none; }
   .bar.pend { opacity: .6; animation: pendPulse 1.2s ease-in-out infinite alternate; }
@@ -325,6 +330,18 @@
   }
   @keyframes bkMix { from { background-position: 0% 0; } to { background-position: 150% 0; } }
   .bk.mix .bk-dates { border-top-color: rgba(120, 70, 160, .14); }
+  /* 끝난 일정 카드: 카드 색은 살짝 남기고 회색 쪽으로 (6색 모두 같은 규칙) — 글자 · 선 · 띠도 차분하게 */
+  .bk.done { background: color-mix(in srgb, var(--tint) 50%, #f2f2f5); box-shadow: 0 2px 6px -3px rgba(40, 30, 60, .12), 0 1px 2px rgba(40, 30, 60, .05); }
+  .bk.done::before { background: color-mix(in srgb, var(--c) 38%, #d3d3db); }
+  .bk.done .bk-name { color: #6e6e7a; }
+  .bk.done .bk-dates { border-top-color: rgba(40, 30, 60, .07); }
+  .bk.done .bk-dates .val, .bk.done .bk-dates .val .dw { color: #80808c; }
+  .bk.done .bk-dates .tm { color: color-mix(in srgb, #e0426a 40%, #a3a3ad); }
+  .bk.done .bk-dates .tl s svg * { stroke: color-mix(in srgb, var(--c) 40%, #c9c9d1); }
+  .bk.done .bk-dates .tl b { color: #9a9aa5; }
+  .bk.mix.done { background: linear-gradient(120deg, #f6eef1 0%, #f1eef6 50%, #edf3f0 100%); }
+  .bk.mix.done::before { background: linear-gradient(180deg, #e3b0be 0%, #cdbbe2 50%, #addacd 100%); }
+  .bk.mix.done .bk-dates .tl s svg * { stroke: #c6b6d6; }
   .bk.mix .bk-dates .tl s svg * { stroke: url(#lnmix); }
 
   /* 오늘 머무는 카드: 테두리를 따라 빛이 도는 효과 (꼬리가 흐려지는 혜성 모양)
@@ -340,7 +357,8 @@
   .st { flex: 0 0 auto; display: inline-flex; align-items: center; border-radius: 999px; padding: 4.5px 9px 3.5px; font: 700 12px/1 var(--font-body); background: #ffe3ea; color: #e0426a; }   /* 위아래: 재서 가운데로 맞춘 여백 */
   .st.come { background: var(--hot); color: #fff; }
   .st.stay { background: #e3e3ea; color: #565662; }                       /* 머무는 중: 조금 더 짙게 */
-  .st.go { background: #c2335d; color: #fff; }                              /* 가는 날: 짙은 분홍 (오는 날 분홍과 구분) */
+  .st.go { background: #c2335d; color: #fff; }
+  .st.done { background: #e9e9ee; color: #7d7d89; }                         /* 끝난 일정 */                              /* 가는 날: 짙은 분홍 (오는 날 분홍과 구분) */
   /* 오는 날 · 가는 날 · 머무는 중 앞 기호: 글자와 같은 색 (예약 창의 "오는 일정 · 가는 일정"과 같은 모양) */
   .st .sti { flex: none; display: block; margin: -2px 3px -2px -1px; }
   /* 전체 예약의 "N일 뒤": 카드 색을 따라가고 조금 진하게, 안으로 살짝 파인 느낌 */
@@ -653,6 +671,13 @@
   #acCard .bk { margin: 14px 0 0; cursor: default; }
   #acCard .bk:active { transform: none; }
   .achead h3 { white-space: nowrap; }
+  /* 끝난 일정을 열었을 때: 수정 · 삭제 버튼 대신 자물쇠 안내 + 닫기 */
+  .acdone { display: none; margin-top: 18px; }
+  #actbg .sheet.ended .hbtns { display: none; }
+  #actbg .sheet.ended .acdone { display: block; }
+  .acnote { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 12px; font: 600 13px/1.3 var(--font-body); color: #8a8a96; }
+  .acnote svg { flex: none; }
+  .acdone button { width: 100%; height: 48px; border: 0; border-radius: 14px; font: 700 16px var(--font-body); }
 
   /* =============================================================
      예약 삭제 확인 — 예약 창 안에서 (다른 화면으로 넘어가지 않고 그 자리에서 바뀜)
@@ -874,6 +899,11 @@
           <button class="b-kill" id="delOk" disabled><svg class="kline" aria-hidden="true"><rect/></svg><i class="kwave"></i><span>삭제</span><i class="kfill"><span>삭제</span></i></button>
           <button class="b-cancel" id="delCancel">취소</button>
         </div>
+      </div>
+      <!-- 끝난 일정: 수정 · 삭제 버튼 대신 안내 + 닫기 -->
+      <div class="acdone">
+        <div class="acnote"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>끝난 일정은 수정 · 삭제할 수 없어요</div>
+        <button class="b-cancel" id="acDone">닫기</button>
       </div>
     </div>
   </div>
@@ -1141,6 +1171,7 @@
     var m = errMsg(e);
     if (denied(e)) return "초대 링크로 열어 주세요";
     if (/이미 쓰는 색/.test(m)) return "다른 색을 골라 주세요";
+    if (/끝난 일정/.test(m)) return "끝난 일정은 수정 · 삭제할 수 없어요";
     if (/지난 날짜/.test(m)) return m.replace(/^.*?(지난 날짜)/, "$1").replace(/\.$/, "");
     return "재시도 해주세요";
   }
@@ -1168,9 +1199,16 @@
   // 날짜가 이번 달에서 몇 달 뒤인지
   function pageOf(k) { var p = k.split("-"), now = new Date(); return (+p[0] * 12 + (+p[1] - 1)) - (now.getFullYear() * 12 + now.getMonth()); }
   // 고를 수 있는 날: 오늘부터
-  function validSel(k) { return !!k && k >= todayKey(); }
+  // ★ 달력 시작점: 2026. 11. 01 (바꾸지 마세요)
+  //  · 달력은 이 날짜가 있는 달(2026년 11월)보다 앞으로는 넘어가지 않음 — 지난 일정은 이 달부터 볼 수 있음
+  //  · 처음 열 때는 항상 "오늘 날짜 · 이번 달"부터 보임 (resetView) — 시작점은 넘길 수 있는 끝일 뿐
+  //  · 서버(WebApp.gs 의 WEB_CAL_START)도 같은 날짜부터 일정을 보내 줌
+  var CAL_START = "2026-11-01";
+  function minPage() { return Math.min(0, pageOf(CAL_START)); }   // 0 = 이번 달 / -1 = 지난달 …
+  // 고를 수 있는 날: 시작점부터 (지난 날도 눌러서 그날 일정을 볼 수 있음)
+  function validSel(k) { return !!k && k >= CAL_START; }
   function goPage(p) {
-    p = Math.max(0, p);
+    p = Math.max(minPage(), p);
     if (p === state.page || state.calBusy) return;
     // 바로 옆 달 (‹ › · 회색 날짜 누르기): 끌어서 넘길 때와 똑같이 옆으로 미끄러지며 넘어감 (제목도 같이)
     if (Math.abs(p - state.page) === 1 && calVp()) { calGo(p - state.page, 0); return; }
@@ -1231,9 +1269,9 @@
 
   // fromLoad: 서버에서 일정을 새로 받아 온 경우 → 동기화 알림 (열 때 · 새로고침 · 돌아왔을 때 "동기화 완료" / 자동 갱신에서 바뀐 게 있으면 "새 일정 반영")
   function onAll(all, fromCache, fromLoad) {
-    // 가는 날이 지난 예약은 시트에 남아 있어도 화면에서는 안 보이게
+    // 끝난 일정도 달력에 남음 (예전엔 가는 날이 지나면 안 보였음)
     var tk = todayKey();
-    all.bookings = (all.bookings || []).filter(function (b) { return b.go >= tk; });
+    all.bookings = all.bookings || [];                                   // 끝난 일정도 그대로 (지우지 않음)
     // 20초마다 받은 내용이 지금 화면과 똑같으면 다시 그리지 않음 (흐르는 이름 · 반짝임 그대로, 배터리 절약)
     //  · 날짜가 바뀌었으면 오늘 표시가 달라지므로 다시 그림
     var sig = JSON.stringify([all.bookings, all.reds]);
@@ -1297,6 +1335,8 @@
   // 일정 카드 상태 칩 앞 동그라미 기호: 오는 일정 / 가는 일정 (예약 창과 같은 그림) / 머무는 중 Zᶻ
   var ST_IN = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M3 12h11M10 8l4 4-4 4"/></svg>';
   var ST_OUT = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M10 12h11M17 8l4 4-4 4"/></svg>';
+  var ST_DONE = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  function isDone(b) { return b.go < todayKey(); }                 // 끝난 일정 = 가는 날이 오늘보다 앞
   var ST_ZZ = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5h8l-8 9.5h8"/><path d="M15 3.5h5.5l-5.5 6.5h5.5" stroke-width="2"/></svg>';
   // 나무(잎) 아이콘 — 앱 아이콘과 같은 그림: 분홍 잎(위가 뾰족 · 아래 둥긂) + 끝부분은 옅게 + 흰 줄기 · 가지 둘 + 아래 꼭지
   // 나무 아이콘 — 앱 아이콘과 같은 모양, 색은 옆 글자와 같은 색(currentColor) · 끝부분은 옅게 · 줄기 · 가지는 흰색
@@ -1684,7 +1724,7 @@
     var mo = monthOf(state.page);
     var h = '<div class="calnav"><div class="cn-tab">' + ICON_TREE + '<span>영주 할매</span></div>' +
       (state.page || state.mode !== "day" || state.sel !== tk ? '<button class="cn-today" data-today="1">오늘</button>' : "") +
-      '<button class="cn-arrow" data-pg="' + (state.page - 1) + '"' + (state.page ? "" : " disabled") + ' aria-label="이전">' + ICON_PREV + "</button>" +
+      '<button class="cn-arrow" data-pg="' + (state.page - 1) + '"' + (state.page > minPage() ? "" : " disabled") + ' aria-label="이전">' + ICON_PREV + "</button>" +
       '<button class="cn-arrow" data-pg="' + (state.page + 1) + '" aria-label="다음">' + ICON_NEXT + "</button></div>";
     var slide = state.slide; state.slide = null;
     h += '<div class="cal tabbed' + (slide ? " slide-" + slide : "") + '"><div class="cal-head">' + DAYS_KO.map(function (d, i) {
@@ -1692,7 +1732,7 @@
     }).join("") + "</div>";
     // 이전 · 이번 · 다음 달을 옆으로 나란히 (이번 달이 가운데) → 끌면 옆 달이 바로 따라 들어옴
     h += '<div class="cal-vp"><div class="cal-track">' +
-      (state.page > 0 ? weeksHtml(state.page - 1, tk) : '<div class="cal-page"></div>') +
+      (state.page > minPage() ? weeksHtml(state.page - 1, tk) : '<div class="cal-page"></div>') +
       weeksHtml(state.page, tk, true) + weeksHtml(state.page + 1, tk) + "</div></div>";
     return h + "</div>";
   }
@@ -1722,7 +1762,7 @@
       h += '<div class="wk' + (height === 52 ? " flat" : "") + '" style="height:' + height + 'px">';
       wk.forEach(function (k, i) {
         var d = new Date(keyMs(k)), past = k < tk, out = d.getMonth() + 1 !== mo.m;
-        var off = k < tk;                                         // 지난 날은 누를 수 없음
+        var off = k < CAL_START;                                  // 시작점 이전만 누를 수 없음 (지난 날도 눌러서 그날 일정 보기)
         var cls = "cday" + (out ? " out" : past ? " past" : "") + (k === tk ? " today" : "") +
           (state.mode === "day" && k === state.sel ? " sel" : "") + (isRed(k) ? " sun" : "");
         var mon = k === tk ? '<span class="cmon">오늘</span>'
@@ -1769,6 +1809,8 @@
         : b.come === tk ? '<span class="st come ic">' + ST_IN + "오늘 도착</span>"
         : '<span class="st stay ic">' + ST_ZZ + "머무는 중</span>";
     }
+    var done = isDone(b);
+    if (done) st = '<span class="st done ic">' + ST_DONE + "끝난 일정</span>";
     var c = colorOf(b), n = Math.max(0, dayDiff(b.come, b.go)), mix = colorNo(b) === MIX;
     // 오늘이 오는 날 ~ 가는 날 사이 (오늘 일정 · 진행 중) → 움직이는 효과 (다시 그려도 이어지게 시간에 맞춘 시작점)
     var wait = b.pend || b.editPending;                              // 등록 · 수정 대기중 (서버 저장 전)
@@ -1779,7 +1821,7 @@
     // 테두리 빛(빙글빙글): 오늘 머무는 카드 + 달력에서 고른 날에 걸친 카드 (고른 날 목록은 모두 그날 일정)
     var spin = live;                                                 // 테두리 빛: 지금 진행 중인(오늘 머무는) 일정만
     var ring = (spin ? '<svg class="ring" aria-hidden="true">' + RING_TAIL.map(function () { return "<path/>"; }).join("") + "</svg>" : "") + (mix ? LN_MIX : "");
-    return '<div class="bk' + (mix ? " mix" : "") + (live ? " live" : "") + (b.pend || b.editPending ? " pend" : "") + (b.delPending ? " delwait" : "") + '" data-bk="' + b.id + '" style="--c:' + c[0] + ";--fg:" + c[2] + ";--tint:" + c[3] + ";--pill:" + c[4] + liveStyle + '">' +
+    return '<div class="bk' + (mix ? " mix" : "") + (done ? " done" : "") + (live ? " live" : "") + (b.pend || b.editPending ? " pend" : "") + (b.delPending ? " delwait" : "") + '" data-bk="' + b.id + '" style="--c:' + c[0] + ";--fg:" + c[2] + ";--tint:" + c[3] + ";--pill:" + c[4] + liveStyle + '">' +
       '<div class="bk-top"><div class="bk-name">' + esc(b.text) + "</div>" + st + "</div>" +
       '<div class="bk-dates">' +
         '<div class="lab">오는 날</div><div class="lab go">가는 날</div>' +
@@ -1921,7 +1963,7 @@
     var done = false, t = $("main").querySelector(".cal-track");
     function settle() {                                         // 움직임이 다 끝난 순간 한 번만 → 바뀐 게 눈에 보이지 않음
       if (done) return; done = true;
-      state.page = Math.max(0, state.page + dir);
+      state.page = Math.max(minPage(), state.page + dir);
       // 제목은 이미 다 바뀌었음 → 새로 그릴 때 다시 쓰지 않게
       state.ymTxt = ymText(state.page);
       state.ymA = { mask: state.ymTxt.split("").map(function () { return false; }), t0: 0, first: false };
@@ -1950,10 +1992,10 @@
     if (cdrag.lock !== 1) return;
     var now = Date.now();
     if (now > cdrag.lastT) { cdrag.v = (x - cdrag.lastX) / (now - cdrag.lastT); cdrag.lastX = x; cdrag.lastT = now; }
-    if (dx > 0 && !(state.page > 0)) dx = dx * .3;              // 이번 달보다 앞은 없음 → 고무줄
+    if (dx > 0 && !(state.page > minPage())) dx = dx * .3;      // 시작점(2026. 11)보다 앞은 없음 → 고무줄
     cdrag.dx = dx;
     calTrackSet(dx);
-    var w = calVp().clientWidth || 360, dir = dx < 0 ? 1 : (dx > 0 && state.page > 0) ? -1 : 0, p = Math.abs(dx) / w;
+    var w = calVp().clientWidth || 360, dir = dx < 0 ? 1 : (dx > 0 && state.page > minPage()) ? -1 : 0, p = Math.abs(dx) / w;
     calHeightAt(cdrag.hs, dir, dir ? p : 0);
     ymScrub(dir, p);
   }, { passive: true });
@@ -1961,7 +2003,7 @@
     var d = cdrag; cdrag = null;
     if (!d || d.lock !== 1) return;
     var w = calVp() ? calVp().clientWidth : 360, dx = d.dx, dir = dx < 0 ? 1 : -1;
-    var go = (Math.abs(dx) > w * .22 || (Math.abs(d.v) > .45 && Math.abs(dx) > 24)) && !(dir < 0 && !(state.page > 0));
+    var go = (Math.abs(dx) > w * .22 || (Math.abs(d.v) > .45 && Math.abs(dx) > 24)) && !(dir < 0 && !(state.page > minPage()));
     if (go) { calGo(dir, Math.abs(dx) / w); return; }
     // 제자리로: 달력 · 높이 · 제목 모두 원래대로
     calTrackSet(0, "transform " + CAL_MS + "ms " + CAL_EASE);
@@ -2035,6 +2077,7 @@
     box.innerHTML = cardHtml(b, day).replace(' data-bk="' + b.id + '"', "");   // 창 안 카드는 눌러도 아무 일 없음
     fixDigits(box);
     $("acDel").disabled = false;
+    $("actbg").querySelector(".sheet").classList.toggle("ended", isDone(b));   // 끝난 일정: 버튼 대신 안내 + 닫기
     $("acTitle").textContent = "예약 정보";
     openBg("actbg");
     alignLines(box);
@@ -2044,7 +2087,7 @@
   // 수정하기: 예약 창을 닫지 않고, 그 창이 위로 늘어나며 예약 수정 창으로 바뀜
   $("acEdit").onclick = function () {
     var b = state.act;
-    if (!b || state.killing) return;
+    if (!b || state.killing || isDone(b)) return;
     closeDel();
     state.act = null;
     openSheet(b, null, "actbg");
@@ -2101,7 +2144,8 @@
   //    → 카드 · 막대는 "삭제 대기중"으로 남아 있다가, 서버에서 지워졌다고 확인되면 사라짐 (실패하면 원래대로)
   var DEL_ARM_MS = 2000, DEL_FILL = "line", delT = null;
   var SHEET_STILL = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  $("acDel").onclick = function () { openDel(state.act); };
+  $("acDel").onclick = function () { if (state.act && !isDone(state.act)) openDel(state.act); };
+  $("acDone").onclick = closeAll;
   function vib(p) { if (navigator.vibrate) { try { navigator.vibrate(p); } catch (e) {} } }
   // line 모양: 버튼 크기에 맞춰 테두리 선(둥근 사각형) 길이를 잼
   function delLineFit(ok) {
@@ -2218,7 +2262,7 @@
   }
 
   // ---------- 예약하기 / 수정 ----------
-  $("addBtn").onclick = function () { openSheet(null, state.mode === "day" && state.sel ? state.sel : todayKey()); };
+  $("addBtn").onclick = function () { openSheet(null, state.mode === "day" && state.sel && state.sel >= todayKey() ? state.sel : todayKey()); };   // 지난 날을 보고 있으면 오늘로
 
   // from: 이 창(지금 열린 창)이 늘어나며 열림 (예약 정보 → 수정하기)
   function openSheet(b, k, from) {
@@ -2770,8 +2814,8 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.23i";
-  var UPD_NOTE = "날짜 고르기 · 시간 휠이 바뀌었어요";
+  var APP_VERSION = "2026.11.23j";
+  var UPD_NOTE = "끝난 일정도 달력에서 볼 수 있어요";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }

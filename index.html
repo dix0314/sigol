@@ -27,16 +27,18 @@
   /* 한국어: 에스코어드림 (TIMELINE 과 같은 글꼴)
      · 그대로 쓰면 다른 글꼴보다 크고 굵어 보여서: 글자 크기 93% (size-adjust) + 굵기는 한 단계 가늘게 이어 둠
        (예: 화면에서 700 = 6Bold 파일, 600 = 5Medium 파일 · 400 · 500 = 4Regular)
-     · 크기는 아래 size-adjust 숫자만 바꾸면 전체에 적용 (100% = 원래 크기) */
-  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-1Thin.woff') format('woff'); font-weight: 100; font-display: swap; size-adjust: 93%; }
-  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-1Thin.woff') format('woff'); font-weight: 200; font-display: swap; size-adjust: 93%; }
-  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-2ExtraLight.woff') format('woff'); font-weight: 300; font-display: swap; size-adjust: 93%; }
-  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-4Regular.woff') format('woff'); font-weight: 400; font-display: swap; size-adjust: 93%; }
-  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-4Regular.woff') format('woff'); font-weight: 500; font-display: swap; size-adjust: 93%; }
-  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-5Medium.woff') format('woff'); font-weight: 600; font-display: swap; size-adjust: 93%; }
-  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-6Bold.woff') format('woff'); font-weight: 700; font-display: swap; size-adjust: 93%; }
-  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-7ExtraBold.woff') format('woff'); font-weight: 800; font-display: swap; size-adjust: 93%; }
-  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-8Heavy.woff') format('woff'); font-weight: 900; font-display: swap; size-adjust: 93%; }
+     · 크기는 아래 size-adjust 숫자만 바꾸면 전체에 적용 (100% = 원래 크기)
+     · ascent · descent-override: 이 글꼴은 한글이 글자 칸 위쪽에 붙어 있어서(폰에서 약 0.07배 위로 뜸) 위아래 가운데로 오게 맞춤
+       (실제 글꼴 파일로 화면을 그려 재서 정한 값 — 일정 막대 글자가 막대 가운데에 오도록) */
+  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-1Thin.woff') format('woff'); font-weight: 100; font-display: swap; size-adjust: 93%; ascent-override: 100%; descent-override: 15%; line-gap-override: 0%; }
+  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-1Thin.woff') format('woff'); font-weight: 200; font-display: swap; size-adjust: 93%; ascent-override: 100%; descent-override: 15%; line-gap-override: 0%; }
+  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-2ExtraLight.woff') format('woff'); font-weight: 300; font-display: swap; size-adjust: 93%; ascent-override: 100%; descent-override: 15%; line-gap-override: 0%; }
+  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-4Regular.woff') format('woff'); font-weight: 400; font-display: swap; size-adjust: 93%; ascent-override: 100%; descent-override: 15%; line-gap-override: 0%; }
+  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-4Regular.woff') format('woff'); font-weight: 500; font-display: swap; size-adjust: 93%; ascent-override: 100%; descent-override: 15%; line-gap-override: 0%; }
+  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-5Medium.woff') format('woff'); font-weight: 600; font-display: swap; size-adjust: 93%; ascent-override: 100%; descent-override: 15%; line-gap-override: 0%; }
+  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-6Bold.woff') format('woff'); font-weight: 700; font-display: swap; size-adjust: 93%; ascent-override: 100%; descent-override: 15%; line-gap-override: 0%; }
+  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-7ExtraBold.woff') format('woff'); font-weight: 800; font-display: swap; size-adjust: 93%; ascent-override: 100%; descent-override: 15%; line-gap-override: 0%; }
+  @font-face { font-family: 'S-CoreDream'; src: url('https://cdn.jsdelivr.net/gh/projectnoonnu/noonfonts_six@1.2/S-CoreDream-8Heavy.woff') format('woff'); font-weight: 900; font-display: swap; size-adjust: 93%; ascent-override: 100%; descent-override: 15%; line-gap-override: 0%; }
 
   /* 세방고딕 2.0 — GitHub 저장소에 같이 올린 글꼴 파일 */
   @font-face {
@@ -244,7 +246,7 @@
     display: flex; align-items: center; overflow: hidden; border-radius: 7px;
     background: var(--bg);                                                        /* 1~5번 색: 그라데이션 없이 단색 */
     color: var(--fg);
-    font: 500 11.5px/1 var(--font-body); letter-spacing: -.2px; white-space: nowrap;
+    font: 500 12.5px/1 var(--font-body); letter-spacing: -.2px; white-space: nowrap;   /* 12.5px: 막대 높이와 맞아 글자가 정확히 가운데 */
   }
   .bar::before { content: ''; position: absolute; left: 3px; top: 4px; bottom: 4px; width: 3px; border-radius: 2px; background: var(--c); }
   .bar::after {
@@ -2672,7 +2674,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.23f";
+  var APP_VERSION = "2026.11.23g";
   var UPD_NOTE = "가는 날 표시 · 글자를 다듬었어요";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }

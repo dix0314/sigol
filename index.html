@@ -680,7 +680,7 @@
   .hlist button { flex: 1 1 0; min-width: 0; height: 48px; padding: 0; border: 0; border-radius: 14px; font: 700 16px var(--font-body); }
   .hlist .b-del { flex: 1 1 0 !important; padding: 0; }
   /* 예약을 누르면 올라오는 창: 흰 바탕 + 메인 화면 목록과 똑같은 예약 카드 */
-  #actbg .sheet { position: relative; padding-top: 14px; }                 /* 예약 정보 · X: 창 위쪽으로 6px 더 */
+  #actbg .sheet { position: relative; padding-top: 18px; }                 /* 예약 정보 · X: 처음(20px)보다 살짝 위 · 답답하지 않게 */
   /* X: 제목 글자와 위아래 가운데 · 오른쪽 끝은 아래 카드 오른쪽 끝과 나란히 (화면에서 재서 맞춘 값) */
   #actbg .acx { transform: translate(4.75px, -1.25px); }
   #actbg .b-cancel { background: var(--grey); }
@@ -2872,7 +2872,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.23p";
+  var APP_VERSION = "2026.11.23q";
   var UPD_NOTE = "끝난 일정도 달력에서 볼 수 있어요";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }

@@ -7,6 +7,8 @@
 <!-- ▲▲▲ -->
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <title>영주 할매</title>
+<!-- 상단(시계 · 배터리 줄) 색: 사이트와 같은 흰색 / 하단 색은 manifest.json 의 theme_color(분홍) -->
+<meta name="theme-color" content="#ffffff">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="영주 할매">
@@ -20,7 +22,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <!-- 번지(달력 숫자) · Exo 2(시간 숫자) -->
-<link href="https://fonts.googleapis.com/css2?family=Bungee+Hairline&family=Exo+2:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Exo+2:wght@400;600;700;800;900&display=swap" rel="stylesheet">
 <!-- 프리텐다드(본문 · 버튼 · 달력 일정) -->
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
 <style>
@@ -39,8 +41,8 @@
   :root {
     /* 글꼴: 여기만 바꾸면 전체에 적용됩니다 */
     --font-num: 'Exo 2', 'Pretendard Variable', sans-serif;     /* 시간 숫자 */
-    --font-cal: 'Bungee Hairline', 'Exo 2', sans-serif;         /* 달력 날짜 숫자 (번지) */
-    --cal-stroke: .7px;   /* 번지 굵기: 가는 번지(Hairline)에 외곽선을 덧입혀 굵기를 맞춤 — 숫자가 클수록 굵게 (.5px 가늘게 ~ 1px 굵게) */
+    --font-cal: 'Bungee', 'Exo 2', sans-serif;                  /* 달력 날짜 숫자 (번지) */
+    --cal-cut: .9px;      /* 번지 굵기 줄이기: 칸 바탕색 외곽선이 획 가장자리를 안쪽으로 깎아서 덜 두껍게 — 클수록 가늘게 (0 = 원래 번지 · 추천 .6px ~ 1.2px) */
     --font-title: 'SebangGothic', 'Pretendard Variable', sans-serif;   /* 제목 · 이름 (세방고딕 2.0) */
     --font-body: 'Pretendard Variable', Pretendard, 'Apple SD Gothic Neo', sans-serif;   /* 본문 · 버튼 · 달력 일정 (프리텐다드) */
 
@@ -117,6 +119,16 @@
   .hero-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .status { flex: 0 0 auto; font: 600 12px var(--font-body); color: var(--sub); }
   .status.err { color: #c62828; }
+  /* 일정 동기화: 받는 중엔 분홍 글자 → 다 받으면 시각 자리에 초록 알약 "✓ 동기화 완료"가 톡 (2.6초 뒤 다시 시각) */
+  .status.syncing { color: var(--hot); }
+  .status.sync { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 10px 0 7px; border-radius: 999px;
+    background: #e2f6ed; color: #0f8a62; font-weight: 700; box-shadow: inset 0 0 0 1px #c6ecdb; animation: syncPop .5s cubic-bezier(.3, 1.5, .5, 1); }
+  .status.sync svg { flex: none; display: block; }
+  .status.sync svg path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: syncCheck .35s .2s ease-out forwards; }
+  .status.sync.still, .status.sync.still svg path { animation: none; stroke-dashoffset: 0; }   /* 화면을 다시 그릴 때는 톡 효과 없이 */
+  @keyframes syncPop { 0% { transform: scale(.6); opacity: 0; } 100% { transform: none; opacity: 1; } }
+  @keyframes syncCheck { to { stroke-dashoffset: 0; } }
+  @media (prefers-reduced-motion: reduce) { .status.sync, .status.sync svg path { animation: none; stroke-dashoffset: 0; } }
 
   /* ---------- 5주 달력 (항상 보임) ---------- */
   /* 달력 위: 월 + 넘기기 */
@@ -195,8 +207,13 @@
   .cnum {
     position: absolute; top: 17px; left: 50%; margin-left: -12px; width: 24px; height: 24px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font: 400 13px/1 var(--font-cal); -webkit-text-stroke: var(--cal-stroke) currentColor; letter-spacing: .4px; color: var(--ink);
+    font: 400 13px/1 var(--font-cal); letter-spacing: .3px; color: var(--ink);
   }
+  .fBungee .cnum, .fBungee .pd .pn { -webkit-text-stroke: var(--cal-cut) var(--cbg); }   /* 번지를 다 받은 뒤에만 깎음 */
+  /* 깎는 외곽선 색 = 칸 바탕색 (바탕마다 맞춤) */
+  .cday { --cbg: #fff; }
+  .cday.past { --cbg: #f7f7f9; }
+  .cday.sel { --cbg: #ffe9ee; }
   .cnum .n { width: auto; }                                                 /* 번지는 숫자 폭이 원래 같아서 칸 고정 없이 */
   .wk.flat .cnum { top: 50%; margin-top: -12px; }                          /* 다 지난 주(낮은 줄): 숫자를 위아래 가운데로 */
   .wk.flat .cmon { top: 3px; }
@@ -530,17 +547,19 @@
   .pd.inr::before { background: var(--bg); }
   .pd.s.rng::before { left: 50%; background: var(--bg); }
   .pd.e.rng::before { right: 50%; background: var(--bg); }
-  .pd .pn { position: relative; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font: 400 13px/1 var(--font-cal); -webkit-text-stroke: var(--cal-stroke) currentColor; letter-spacing: .4px; color: var(--ink); transition: background .15s; }
+  .pd .pn { position: relative; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font: 400 13px/1 var(--font-cal); letter-spacing: .3px; color: var(--ink); transition: background .15s; }
+  .pd { --cbg: #fff; }
+  .pd.inr { --cbg: var(--bg); }
   .pd.sun .pn { color: #e51440; }
   .pd.today .pn { box-shadow: inset 0 0 0 2px var(--hot); color: var(--hot); }
   .popbg .pd.today .pn { box-shadow: none; color: #f08aa3; }   /* 오늘: 동그라미 없이 숫자만 옅은 분홍 */
   /* 다른 쪽 날짜: 속이 빈 옅은 동그라미 */
   .popbg .pd.s .pn, .popbg .pd.e .pn { background: #fff; color: var(--pa); box-shadow: inset 0 0 0 1.5px var(--pa-dim); }
   /* 지금 고르는 날짜: 꽉 찬 동그라미 */
-  .popbg[data-w="come"] .pd.s .pn, .popbg[data-w="go"] .pd.e .pn { background: var(--pa); color: #fff; box-shadow: 0 3px 8px -3px var(--pa-sh); }
+  .popbg[data-w="come"] .pd.s .pn, .popbg[data-w="go"] .pd.e .pn { --cbg: var(--pa); background: var(--pa); color: #fff; box-shadow: 0 3px 8px -3px var(--pa-sh); }
   /* 오는 날 창: 뒤에 이어지는 기간(띠 · 가는 날)은 아주아주 옅게 → 고른 오는 날만 또렷 */
   .popbg[data-w="come"] .pk-cal { --bg: #fff5f8; }
-  .popbg[data-w="come"] .pd.e:not(.s) .pn { background: #fde8ee; color: var(--ink); box-shadow: none; }   /* 가는 날 끝: 옅게 꽉 찬 동그라미 */
+  .popbg[data-w="come"] .pd.e:not(.s) .pn { --cbg: #fde8ee; background: #fde8ee; color: var(--ink); box-shadow: none; }   /* 가는 날 끝: 옅게 꽉 찬 동그라미 */
   .pd.just .pn { animation: pkPick .34s cubic-bezier(.3, 1.6, .5, 1); }
   @keyframes pkPick { 0% { transform: scale(.5); } 100% { transform: scale(1); } }
   @media (prefers-reduced-motion: reduce) { .pd.just .pn { animation: none; } }
@@ -599,7 +618,7 @@
   .acx:active { background: rgba(40, 30, 60, .06); }
   .achead h3 { flex: 1 1 auto; min-width: 0; }
   .hlist { display: flex; gap: 8px; margin-top: 20px; }
-  .hlist button { flex: 1 1 0; min-width: 0; height: 56px; padding: 0; border: 0; border-radius: 14px; font: 700 16px var(--font-body); }
+  .hlist button { flex: 1 1 0; min-width: 0; height: 48px; padding: 0; border: 0; border-radius: 14px; font: 700 16px var(--font-body); }
   .hlist .b-del { flex: 1 1 0 !important; padding: 0; }
   /* 예약을 누르면 올라오는 창: 흰 바탕 + 메인 화면 목록과 똑같은 예약 카드 */
   #actbg .sheet { position: relative; }
@@ -609,47 +628,64 @@
   .achead h3 { white-space: nowrap; }
 
   /* =============================================================
-     예약 삭제 확인 — 예약 창 안에서
-     · 삭제하기 → 창이 위로 부드럽게 늘어나며(확장) 확인 모드로 바뀜 (sheetResize)
-     · 제목 "예약 삭제"(막대 빨강) → 휴지통 + "이 예약을 삭제할까요?" → 흑백이 된 예약 카드 → [삭제 | 취소]
+     예약 삭제 확인 — 예약 창 안에서 (다른 화면으로 넘어가지 않고 그 자리에서 바뀜)
+     · 제목: "예약 삭제" (막대 빨강)
+     · 카드: 자리는 그대로 → 카드 색의 짙은 막이 가운데에서 동그랗게 퍼지며 덮임
+             → 그 위에 움직이는 휴지통 + "이 예약을 삭제할까요?"
+     · 버튼: [삭제하기 | 수정하기] 가 같은 크기 · 같은 자리에서 [삭제 | 취소] 로 바뀜
      · 삭제 버튼: 2초 동안 채워진 뒤에 눌림 (채워지는 모양 3가지: line · water · sweep → JS 의 DEL_FILL)
      · 눌리게 되면 휴지통 원이 껌뻑이며 물결이 계속 퍼짐
      · 삭제를 누르면 창이 빨갛게 번쩍 → 꾸깃 쪼그라들며 아래로 빨려 들어가 사라짐 → 카드는 "삭제 대기중"
      ============================================================= */
   .sheet-tint { position: absolute; inset: 0; z-index: 5; border-radius: inherit; opacity: 0; pointer-events: none; }
-  #actbg .sheet.sizing { overflow: hidden; }                            /* 늘어나고 줄어드는 동안 */
   #actbg h3::before { transition: background .25s; }
   #actbg .sheet.delmode h3::before { background: #e0344f; }
-  /* 휴지통 + 질문: 카드 위에 */
-  .delov { display: none; }
-  .sheet.delmode .delov { display: flex; flex-direction: column; align-items: center; padding: 22px 0 0; text-align: center; animation: delIn .42s cubic-bezier(.2, .7, .2, 1) both; }
-  @keyframes delIn { from { opacity: 0; transform: translateY(10px) scale(.96); } to { opacity: 1; transform: none; } }
-  .cfm-ico { position: relative; width: 52px; height: 52px; margin: 0 auto 12px; border-radius: 50%; background: #ffe6ea; color: #e0344f;
-    display: flex; align-items: center; justify-content: center; box-shadow: 0 0 0 6px rgba(255, 230, 234, .5); transition: background .3s; }
-  .cfm-ico svg { width: 24px; height: 24px; display: block; overflow: visible; }
+  /* 카드 위 짙은 막 (카드와 같은 크기 · 모양) */
+  .acbox { position: relative; }
+  .delov {
+    position: absolute; left: 0; right: 0; top: 0; bottom: 0; z-index: 4; border-radius: 3px 12px 12px 3px;
+    display: flex; align-items: center; justify-content: center; gap: 12px; padding: 0 16px;
+    background: rgba(80, 24, 44, .86); background: color-mix(in srgb, var(--dc, #c4304f) 88%, transparent);
+    visibility: hidden; clip-path: circle(0% at 50% 50%);
+    transition: clip-path .3s cubic-bezier(.4, 0, .6, 1), visibility 0s linear .3s;
+  }
+  .sheet.delmode .delov { visibility: visible; clip-path: circle(80% at 50% 50%); transition: clip-path .5s cubic-bezier(.25, .8, .25, 1), visibility 0s; }
+  /* 휴지통: 흰 동그라미 안 빨간 휴지통 — 톡 튀어나온 뒤 뚜껑이 들썩, 그 뒤로 가끔 흔들흔들 */
+  .cfm-ico { position: relative; flex: none; width: 46px; height: 46px; border-radius: 50%; background: #fff; color: #e0344f;
+    display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px -6px rgba(0, 0, 0, .5);
+    transform: scale(.4); opacity: 0; transition: transform .2s, opacity .15s; }
+  .sheet.delmode .cfm-ico { transform: none; opacity: 1; transition: transform .5s .12s cubic-bezier(.3, 1.6, .5, 1), opacity .2s .12s; }
+  .cfm-ico svg { width: 22px; height: 22px; display: block; overflow: visible; }
   .cfm-ico .lid { transform-box: fill-box; transform-origin: 100% 100%; }
-  .sheet.delmode .cfm-ico .lid { animation: lidPop .5s .18s cubic-bezier(.3, 1.6, .5, 1) both; }   /* 열릴 때 뚜껑이 톡 */
+  .sheet.delmode .cfm-ico .lid { animation: lidPop .5s .38s cubic-bezier(.3, 1.6, .5, 1) both; }
   .delov.ready .cfm-ico .lid { animation: lidPop .42s cubic-bezier(.3, 1.6, .5, 1); }
   @keyframes lidPop { 0% { transform: none; } 45% { transform: rotate(14deg) translateY(-1px); } 100% { transform: none; } }
-  /* 삭제할 수 있게 되면: 원이 껌뻑이고 둘레로 물결이 계속 퍼짐 (두 겹이 번갈아) */
-  .delov.ready .cfm-ico { background: #ffd6de; animation: icoBlink 1.6s ease-in-out infinite; }
+  .sheet.delmode .cfm-ico svg { animation: binWiggle 1.8s 1s ease-in-out infinite; }
+  @keyframes binWiggle { 0%, 68%, 100% { transform: none; } 75% { transform: rotate(-10deg); } 83% { transform: rotate(8deg); } 91% { transform: rotate(-4deg); } }
+  /* 삭제할 수 있게 되면: 원이 껌뻑이고 둘레로 흰 물결이 계속 퍼짐 (두 겹이 번갈아) */
+  .delov.ready .cfm-ico { animation: icoBlink 1.6s ease-in-out infinite; }
   .delov.ready .cfm-ico::before, .delov.ready .cfm-ico::after {
     content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
-    box-shadow: 0 0 0 2px rgba(224, 52, 79, .45); animation: icoRipple 1.6s cubic-bezier(.2, .6, .35, 1) infinite;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, .75); animation: icoRipple 1.6s cubic-bezier(.2, .6, .35, 1) infinite;
   }
   .delov.ready .cfm-ico::after { animation-delay: -.8s; }
-  @keyframes icoRipple { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(1.75); opacity: 0; } }
-  @keyframes icoBlink { 0%, 100% { background: #ffd6de; } 50% { background: #ffbfcc; } }
-  .cfm-q { font: 700 16px/1.4 var(--font-body); color: #4a4a55; letter-spacing: -.2px; }
-  /* 카드: 흑백 + 살짝 옅게, 움직이는 효과는 멈춤 */
-  #acCard .bk { transition: filter .35s ease, opacity .35s ease; }
-  .sheet.delmode #acCard .bk { filter: grayscale(1); opacity: .6; }
+  @keyframes icoRipple { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(1.7); opacity: 0; } }
+  @keyframes icoBlink { 0%, 100% { background: #fff; } 50% { background: #ffe1e7; } }
+  .cfm-q { min-width: 0; color: #fff; font: 700 15.5px/1.35 var(--font-body); letter-spacing: -.2px; word-break: keep-all; text-shadow: 0 1px 2px rgba(0, 0, 0, .2);
+    opacity: 0; transform: translateX(-6px); transition: opacity .15s, transform .2s; }
+  .sheet.delmode .cfm-q { opacity: 1; transform: none; transition: opacity .3s .2s, transform .4s .2s cubic-bezier(.2, .7, .2, 1); }
+  /* 덮인 카드의 움직이는 효과는 멈춤 */
   .sheet.delmode #acCard .bk, .sheet.delmode #acCard .bk::after { animation-play-state: paused; }
   .sheet.delmode #acCard .ring { display: none; }
-  /* 버튼: 삭제하기 · 수정하기 ↔ 삭제 · 취소 */
-  .delact { display: none; }
-  .sheet.delmode .hlist { display: none; }
-  .sheet.delmode .delact { display: flex; margin-top: 20px; animation: delIn .42s .06s cubic-bezier(.2, .7, .2, 1) both; }
+  /* 버튼 두 줄을 같은 자리에 겹쳐 두고 바꿔 보여 줌 → 버튼이 그 자리에서 바뀌는 느낌 (크기 같음) */
+  .hbtns { position: relative; margin-top: 18px; }
+  .hbtns .hlist { margin-top: 0; transition: opacity .2s, transform .3s cubic-bezier(.2, .7, .2, 1); }
+  .hbtns .delact { position: absolute; inset: 0; margin: 0; opacity: 0; visibility: hidden; transform: scale(.94);
+    transition: opacity .2s, transform .3s, visibility 0s linear .3s; }
+  .sheet.delmode .hbtns .hlist { opacity: 0; transform: scale(.94); pointer-events: none; }
+  .sheet.delmode .hbtns .delact { opacity: 1; visibility: visible; transform: none;
+    transition: opacity .25s .05s, transform .4s .05s cubic-bezier(.3, 1.4, .5, 1), visibility 0s; }
+  #actbg .hbtns button { height: 48px; font-size: 16px; }
 
   /* ----- 삭제 버튼: 바깥 글자(빨강) 위에 채움 칸(흰 글자)이 잘려 보이며 차오름 → 경계에서 글자 색도 같이 바뀜 ----- */
   .b-kill { position: relative; overflow: hidden; isolation: isolate; background: #fff; color: #e0344f; box-shadow: inset 0 0 0 1.5px #f6c9d1; transition: transform .15s, box-shadow .2s; --kt: 2s; }
@@ -705,10 +741,11 @@
     box-shadow: inset 0 0 0 1px #f6c9d1; font: 400 12px/1 var(--font-title); white-space: nowrap; }
   .dwait i { width: 10px; height: 10px; border-radius: 50%; border: 1.6px solid #f6c9d1; border-top-color: #e0344f; animation: spin .8s linear infinite; }
   @media (prefers-reduced-motion: reduce) {
-    .sheet.delmode .delov, .sheet.delmode .delact, .sheet.delmode .cfm-ico .lid { animation: none; }
+    .delov, .cfm-ico, .cfm-q, .hbtns .hlist, .hbtns .delact { transition: none !important; }
+    .sheet.delmode .cfm-ico svg, .sheet.delmode .cfm-ico .lid { animation: none; }
     .b-kill .kfill, .b-kill .kline rect, .b-kill .kwave, .b-kill .kwave::before { animation: none !important; }
     .b-kill.ready .kfill { clip-path: none; }
-    .b-kill.ready, .b-kill.ready::after, .delov.ready .cfm-ico .lid, .delov.ready .cfm-ico, .dwait i { animation: none; }
+    .b-kill.ready, .b-kill.ready::after, .delov.ready .cfm-ico .lid, .delov.ready .cfm-ico, .dwait i { animation: none !important; }
     .delov.ready .cfm-ico::before, .delov.ready .cfm-ico::after { display: none; }
   }
 
@@ -786,20 +823,24 @@
         <h3 id="acTitle">예약 정보</h3>
         <button class="acx" id="acClose" aria-label="닫기"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
       </div>
-      <!-- 삭제 확인: 휴지통 + 질문 (삭제 모드에서만 보임) -->
-      <div class="delov" id="delov">
-        <div class="cfm-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><g class="lid"><path d="M4 6.5h16"/><path d="M9.5 6.5V4.8a1.3 1.3 0 0 1 1.3-1.3h2.4a1.3 1.3 0 0 1 1.3 1.3v1.7"/></g><path d="M6.2 6.5l.9 12.4a1.8 1.8 0 0 0 1.8 1.6h6.2a1.8 1.8 0 0 0 1.8-1.6l.9-12.4"/><path d="M10.2 10.5v6M13.8 10.5v6"/></svg></div>
-        <div class="cfm-q">이 예약을 삭제할까요?</div>
+      <div class="acbox">
+        <div id="acCard"></div>
+        <!-- 삭제 확인: 카드 위에 짙은 막 + 움직이는 휴지통 (삭제 모드에서만 보임) -->
+        <div class="delov" id="delov">
+          <div class="cfm-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><g class="lid"><path d="M4 6.5h16"/><path d="M9.5 6.5V4.8a1.3 1.3 0 0 1 1.3-1.3h2.4a1.3 1.3 0 0 1 1.3 1.3v1.7"/></g><path d="M6.2 6.5l.9 12.4a1.8 1.8 0 0 0 1.8 1.6h6.2a1.8 1.8 0 0 0 1.8-1.6l.9-12.4"/><path d="M10.2 10.5v6M13.8 10.5v6"/></svg></div>
+          <div class="cfm-q">이 예약을 삭제할까요?</div>
+        </div>
       </div>
-      <div id="acCard"></div>
-      <div class="hlist">
-        <button class="b-del" id="acDel">삭제하기</button>
-        <button class="b-save" id="acEdit">수정하기</button>
-      </div>
-      <!-- 삭제 버튼은 2초 뒤에 눌림 -->
-      <div class="actions delact">
-        <button class="b-kill" id="delOk" disabled><svg class="kline" aria-hidden="true"><rect/></svg><i class="kwave"></i><span>삭제</span><i class="kfill"><span>삭제</span></i></button>
-        <button class="b-cancel" id="delCancel">취소</button>
+      <!-- 버튼: [삭제하기 | 수정하기] ↔ [삭제 | 취소] 같은 자리 · 같은 크기 (삭제 버튼은 2초 뒤에 눌림) -->
+      <div class="hbtns">
+        <div class="hlist">
+          <button class="b-del" id="acDel">삭제하기</button>
+          <button class="b-save" id="acEdit">수정하기</button>
+        </div>
+        <div class="actions delact">
+          <button class="b-kill" id="delOk" disabled><svg class="kline" aria-hidden="true"><rect/></svg><i class="kwave"></i><span>삭제</span><i class="kfill"><span>삭제</span></i></button>
+          <button class="b-cancel" id="delCancel">취소</button>
+        </div>
       </div>
     </div>
   </div>
@@ -1137,12 +1178,13 @@
     state.loading = true;
     updateStatus();
     google.script.run
-      .withSuccessHandler(function (all) { if (my !== state.seq) return; state.loading = false; onAll(all, false); })
+      .withSuccessHandler(function (all) { if (my !== state.seq) return; state.loading = false; onAll(all, false, true); })
       .withFailureHandler(function (e) { if (my !== state.seq) return; state.loading = false; if (denied(e)) return; state.err = errMsg(e); updateStatus(); })
       .getAll();
   }
 
-  function onAll(all, fromCache) {
+  // fromLoad: 서버에서 일정을 새로 받아 온 경우 → 동기화 알림 (열 때 · 새로고침 · 돌아왔을 때 "동기화 완료" / 자동 갱신에서 바뀐 게 있으면 "새 일정 반영")
+  function onAll(all, fromCache, fromLoad) {
     // 가는 날이 지난 예약은 시트에 남아 있어도 화면에서는 안 보이게
     var tk = todayKey();
     all.bookings = (all.bookings || []).filter(function (b) { return b.go >= tk; });
@@ -1150,18 +1192,35 @@
     //  · 날짜가 바뀌었으면 오늘 표시가 달라지므로 다시 그림
     var sig = JSON.stringify([all.bookings, all.reds]);
     var same = !fromCache && state.all && !state.fromCache && sig === state.sig && state.drawnDay === tk;
+    var flash = null;
+    if (fromLoad) {
+      flash = state.wantSync ? "동기화 완료" : (state.all && !state.fromCache && sig !== state.sig ? "새 일정 반영" : null);
+      state.wantSync = false;
+    }
     state.all = all;
     state.sig = sig;
     state.fromCache = fromCache;
     if (!fromCache) { state.lastLoad = new Date(); state.err = null; saveCache(); }
     if (!validSel(state.sel)) state.sel = todayKey();
-    if (same) { updateStatus(); return; }
+    if (same) { updateStatus(); if (flash) syncFlash(flash); return; }
     renderPage();
+    if (flash) syncFlash(flash);
+  }
+
+  // 동기화 알림: 시각 자리에 "✓ 동기화 완료" 알약을 잠깐 보여 줌
+  var SYNC_MS = 2600;
+  var ICON_SYNC = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  function syncFlash(msg) {
+    state.syncMsg = msg;
+    state.syncUntil = Date.now() + SYNC_MS;
+    updateStatus();
+    clearTimeout(syncFlash._t);
+    syncFlash._t = setTimeout(updateStatus, SYNC_MS + 30);
   }
 
   function statusText() {
     if (state.err) return "불러오기 실패 · 다시 시도해 주세요";
-    if (state.loading) return state.lastLoad ? "새로 받는 중…" : "불러오는 중…";
+    if (state.loading) return state.lastLoad ? "동기화 중…" : "불러오는 중…";
     return state.lastLoad ? "업데이트: " + hhmm(state.lastLoad) : "";
   }
   function updateStatus() {
@@ -1169,8 +1228,17 @@
     if (rb) rb.classList.toggle("spin", !!state.loading);
     var el = document.querySelector(".status");
     if (!el) return;
+    if (!state.err && !state.loading && state.syncUntil > Date.now()) {
+      if (el.getAttribute("data-sync") === String(state.syncUntil)) return;          // 이미 보이는 중
+      el.className = "status sync" + (state.syncShown === state.syncUntil ? " still" : "");
+      el.setAttribute("data-sync", state.syncUntil);
+      el.innerHTML = ICON_SYNC + "<span>" + esc(state.syncMsg) + "</span>";
+      state.syncShown = state.syncUntil;
+      return;
+    }
+    el.removeAttribute("data-sync");
     el.textContent = statusText();
-    el.className = "status" + (state.err ? " err" : "");
+    el.className = "status" + (state.err ? " err" : state.loading ? " syncing" : "");
     fixDigits(el.parentNode);
   }
 
@@ -1185,11 +1253,8 @@
   var ST_IN = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M3 12h11M10 8l4 4-4 4"/></svg>';
   var ST_OUT = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M10 12h11M17 8l4 4-4 4"/></svg>';
   var ST_ZZ = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5h8l-8 9.5h8"/><path d="M15 3.5h5.5l-5.5 6.5h5.5" stroke-width="2"/></svg>';
-  // 나무(잎) 아이콘 — 앱 아이콘과 같은 모양: 잎 + 가운데 줄기 + 가지 둘, 끝은 옅게 칠함
-  var ICON_TREE = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' +
-    '<path d="M12 3.2L8.5 9.3H15.5Z" fill="currentColor" stroke="none" opacity=".28"/>' +
-    '<path d="M12 2.8L7.7 10.5C6.7 12.3 6.3 13.5 6.3 14.6C6.3 16.6 7.6 17.7 9.5 17.7H14.5C16.4 17.7 17.7 16.6 17.7 14.6C17.7 13.5 17.3 12.3 16.3 10.5Z"/>' +
-    '<path d="M12 17.7V20.8"/><path d="M12 7.4V16"/><path d="M9.4 11.1L12 12.9L14.6 11.1"/><path d="M8.7 13.6L12 15.8L15.3 13.6"/></svg>';
+  // 나무(잎) 아이콘 — 앱 아이콘과 같은 그림: 분홍 잎(위가 뾰족 · 아래 둥긂) + 끝부분은 옅게 + 흰 줄기 · 가지 둘 + 아래 꼭지
+  var ICON_TREE = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><defs><linearGradient id="tabLeaf" gradientUnits="userSpaceOnUse" x1="0" y1="2" x2="0" y2="22.6"><stop offset="0" stop-color="#ff8aa3"/><stop offset="1" stop-color="#ea3a64"/></linearGradient></defs><rect x="10.75" y="18.8" width="2.5" height="3.7" rx="1.25" fill="url(#tabLeaf)"/><path fill="url(#tabLeaf)" d="M11.2 2.3C11.6 1.6 12.4 1.6 12.8 2.3L17.6 13C18.2 14.3 18.4 15.3 18.4 16.3C18.4 18.8 16.9 20.4 14.5 20.4H9.5C7.1 20.4 5.6 18.8 5.6 16.3C5.6 15.3 5.8 14.3 6.4 13Z"/><path fill="#fff" opacity=".45" d="M11.2 2.3C11.6 1.6 12.4 1.6 12.8 2.3L16.05 9.6H7.95Z"/><g fill="none" stroke="#fff" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7.2V18.4"/><path d="M9.3 12.5L12 14.4L14.7 12.5"/><path d="M8.3 15.2L12 17.6L15.7 15.2"/></g></svg>';
   var ICON_REFRESH = '<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>';
 
   // 숫자를 한 글자씩 같은 폭 상자에 넣음
@@ -1398,6 +1463,7 @@
     h += listHtml();
     $("main").innerHTML = h;
     fixDigits($("main"));
+    updateStatus();
     calFitVp();
     alignIcon();
     alignLines();
@@ -1530,7 +1596,7 @@
       mid = tb.top + tb.height * .5;                       // 못 재는 브라우저: 예전 방식
     }
     var ib = ic.getBoundingClientRect();
-    var iconMid = ib.top + ib.height * (2.8 + 20.8) / 2 / 24;   // 나무 그림은 24칸 중 2.8 ~ 20.8 에 있음
+    var iconMid = ib.top + ib.height * (1.6 + 22.5) / 2 / 24;   // 나무 그림은 24칸 중 1.6 ~ 22.5 에 있음
     tab.style.setProperty("--iconY", (Math.round((mid - iconMid) * 2) / 2) + "px");
   }
 
@@ -1552,6 +1618,12 @@
   // 글꼴은 화면에 처음 쓰일 때 받아지므로, 받아질 때마다 다시 잼 (막대 이름이 그제야 길어져 "…"이 되는 경우 흐르게)
   if (document.fonts && document.fonts.addEventListener) {
     document.fonts.addEventListener("loadingdone", function () { alignIcon(); alignLines(); marqueeBars(); ringCards(); });
+  }
+  // 번지(달력 숫자)를 다 받으면 html 에 fBungee 표시 → 그때부터 획을 깎는 외곽선 적용
+  if (document.fonts && document.fonts.load) {
+    document.fonts.load("400 13px Bungee").then(function () {
+      if (document.fonts.check("400 13px Bungee")) document.documentElement.classList.add("fBungee");
+    }, function () {});
   }
   // 막대 · 카드에 쓰는 세방고딕 두 굵기를 미리 받아 둠
   if (document.fonts && document.fonts.load) {
@@ -1692,7 +1764,7 @@
     var t = e.target.closest("[data-act],[data-bk],[data-k],[data-mode],[data-pg]");
     if (!t || t.disabled) return;
     if (t.hasAttribute("data-pg")) { goPage(+t.getAttribute("data-pg")); return; }
-    if (t.hasAttribute("data-act")) { load(); return; }
+    if (t.hasAttribute("data-act")) { state.wantSync = true; load(); return; }
     if (t.hasAttribute("data-bk")) { openAct(Number(t.getAttribute("data-bk"))); return; }
     if (t.hasAttribute("data-k")) {
       var k = t.getAttribute("data-k"), p = pageOf(k);
@@ -1876,7 +1948,7 @@
   ["actbg", "sheetbg"].forEach(function (id) {
     $(id).addEventListener("click", function (e) {
       if (e.target !== $(id) || state.killing) return;
-      if (id === "actbg" && $("actbg").querySelector(".sheet").classList.contains("delmode")) { closeDel(true); return; }   // 확인 중: 확인만 닫고 예약 창은 그대로
+      if (id === "actbg" && $("actbg").querySelector(".sheet").classList.contains("delmode")) { closeDel(); return; }   // 확인 중: 확인만 닫고 예약 창은 그대로
       closeAll();
     });
   });
@@ -1924,44 +1996,52 @@
     state.act = null;
     openSheet(b, null, "actbg");
   };
-  // from 창(지금 열린 창)이 그대로 위로 늘어나며 to 창이 되는 효과
-  //  · to 창은 아래에서 올라오지 않고 바로 놓인 뒤, 위쪽을 가렸다가(clip) 위로 펼쳐짐 → 내용은 살짝 떠오르며 나타남
-  //  · 뒤 어두운 막은 두 창이 같아서 끊김 없이 이어짐
+  // from 창(지금 열린 창)이 끊김 없이 위로 늘어나며 to 창이 되는 효과
+  //  ① to 창의 높이를 안 보이게 미리 잼
+  //  ② from 창 내용이 살짝 사라지는 동안, from 창 자체가 to 창 높이까지 부드럽게 늘어남
+  //  ③ 다 늘어난 순간 같은 자리 · 같은 크기의 to 창으로 바꿔 끼우고, 내용이 차례로 떠오름 (뒤 어두운 막은 그대로)
   function growFrom(fromId, toId) {
     var from = $(fromId), fsh = from.querySelector(".sheet"), bg = $(toId), sh = bg.querySelector(".sheet");
-    var h0 = fsh.getBoundingClientRect().height;
+    var EASE = "cubic-bezier(.3, .8, .25, 1)", mine = [];
+    bg.style.visibility = "hidden";
     bg.classList.add("grow", "open");
-    lockScroll(true);
-    var h1 = sh.getBoundingClientRect().height, top = Math.max(0, Math.round(h1 - h0));
-    from.style.transition = fsh.style.transition = "none";      // 앞 창은 바로 숨김 (새 창이 같은 자리를 덮고 있음)
-    from.classList.remove("open");
-    void from.offsetWidth;
-    from.style.transition = fsh.style.transition = "";
-    function done() { bg.classList.remove("grow"); }
-    if (SHEET_STILL || !sh.animate) { done(); return; }
-    var R = " round 20px 20px 0 0";
-    var a = sh.animate([{ clipPath: "inset(" + top + "px 0 0 0" + R + ")" }, { clipPath: "inset(0px 0 0 0" + R + ")" }],
-      { duration: 420, easing: "cubic-bezier(.2, .7, .2, 1)" });
-    [].forEach.call(sh.children, function (el, i) {
-      el.animate([{ opacity: 0, transform: "translateY(12px)" }, { opacity: 1, transform: "none" }],
-        { duration: 360, delay: 80 + i * 22, easing: "cubic-bezier(.2, .7, .2, 1)", fill: "backwards" });
-    });
-    a.onfinish = a.oncancel = done;
-  }
-  // 창 높이가 바뀔 때(삭제 확인 모드 켜고 끄기) 부드럽게 늘어나고 줄어들게: 바뀌기 전 · 후 높이를 재서 그 사이를 움직임
-  function sheetResize(sh, change) {
-    var h0 = sh.getBoundingClientRect().height;
-    if (sh._rs) sh._rs.cancel();
-    change();
     var h1 = sh.getBoundingClientRect().height;
-    if (SHEET_STILL || !sh.animate || Math.abs(h1 - h0) < 1) return;
-    sh.classList.add("sizing");
-    var a = sh._rs = sh.animate([{ height: h0 + "px" }, { height: h1 + "px" }], { duration: 380, easing: "cubic-bezier(.2, .7, .2, 1)" });
-    a.onfinish = a.oncancel = function () { if (sh._rs === a) { sh._rs = null; sh.classList.remove("sizing"); } };
+    bg.classList.remove("open");
+    bg.style.visibility = "";
+    var h0 = fsh.getBoundingClientRect().height;
+    function swap() {
+      bg.classList.add("open");                                  // grow: 아래에서 올라오지 않고 그 자리에 바로
+      lockScroll(true);
+      from.style.transition = fsh.style.transition = "none";
+      from.classList.remove("open");
+      void from.offsetWidth;
+      from.style.transition = fsh.style.transition = "";
+      fsh.style.overflow = "";
+      mine.forEach(function (x) { x.cancel(); });                // 다음에 예약 창을 열 때 원래 모습으로
+      if (!SHEET_STILL && sh.animate) {
+        [].forEach.call(sh.children, function (el, i) {
+          el.animate([{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }],
+            { duration: 280, delay: i * 18, easing: EASE, fill: "backwards" });
+        });
+      }
+      requestAnimationFrame(function () { requestAnimationFrame(function () { bg.classList.remove("grow"); }); });
+    }
+    if (SHEET_STILL || !fsh.animate || h1 <= h0) { swap(); return; }
+    fsh.style.overflow = "hidden";
+    [].forEach.call(fsh.children, function (el) {
+      if (el.classList.contains("sheet-tint")) return;
+      mine.push(el.animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "translateY(-6px)" }], { duration: 160, easing: "ease-out", fill: "forwards" }));
+    });
+    var a = fsh.animate([{ height: h0 + "px" }, { height: h1 + "px" }], { duration: 380, easing: EASE, fill: "forwards" });
+    mine.push(a);
+    var done = false;
+    function fin() { if (done) return; done = true; swap(); }
+    a.onfinish = fin;
+    setTimeout(fin, 520);                                        // onfinish 가 안 오는 경우 대비
   }
 
   // ---------- 예약 삭제 (예약 창 안에서 확인) ----------
-  //  · 삭제하기 → 창이 위로 늘어나며: 휴지통 + "이 예약을 삭제할까요?" / 카드는 흑백
+  //  · 삭제하기 → 그 자리에서: 카드 위에 짙은 막 + 움직이는 휴지통 / 버튼이 [삭제 | 취소] 로
   //  · 삭제 버튼은 DEL_ARM_MS(2초) 동안 채워진 뒤에 눌림
   //  · DEL_FILL: 채워지는 모양 — "line"(선이 테두리를 한 바퀴 → 꽉) / "water"(아래에서 물이 차오름) / "sweep"(왼쪽 → 오른쪽)
   //  · 삭제를 누르면 창이 빨갛게 번쩍 → 꾸깃 쪼그라들며 빨려 들어가 사라짐
@@ -1983,13 +2063,14 @@
   function openDel(b) {
     if (!b || state.killing) return;
     var sh = $("actbg").querySelector(".sheet"), ov = $("delov"), ok = $("delOk");
+    ov.style.setProperty("--dc", colorOf(b)[2]);                 // 덮는 막 = 이 예약 색의 짙은 색
     ok.disabled = true;
     ok.setAttribute("data-fill", DEL_FILL);
     ok.style.setProperty("--kt", DEL_ARM_MS + "ms");
     ok.classList.remove("arm", "ready");
     ov.classList.remove("ready");
-    sheetResize(sh, function () { sh.classList.add("delmode"); $("acTitle").textContent = "예약 삭제"; });
-    sh.scrollTop = 0;
+    sh.classList.add("delmode");
+    $("acTitle").textContent = "예약 삭제";
     delLineFit(ok);
     void ok.offsetWidth;                                         // 다시 열 때도 처음부터 채워지게
     ok.classList.add("arm");
@@ -2002,18 +2083,16 @@
       vib(10);
     }, DEL_ARM_MS);
   }
-  // anim: 창이 부드럽게 원래 크기로 줄어듦 (취소 · 바깥 누르기)
-  function closeDel(anim) {
+  function closeDel() {
     clearTimeout(delT);
     var sh = $("actbg").querySelector(".sheet"), ok = $("delOk");
     ok.disabled = true;
     ok.classList.remove("arm", "ready");
     $("delov").classList.remove("ready");
-    if (!sh.classList.contains("delmode")) return;
-    function off() { sh.classList.remove("delmode"); $("acTitle").textContent = "예약 정보"; }
-    if (anim) sheetResize(sh, off); else off();
+    sh.classList.remove("delmode");
+    $("acTitle").textContent = "예약 정보";
   }
-  $("delCancel").onclick = function () { closeDel(true); };
+  $("delCancel").onclick = function () { closeDel(); };
   $("delOk").onclick = function () {
     var b = state.act;
     if (!b || this.disabled || state.killing) return;
@@ -2478,7 +2557,7 @@
   setInterval(function () {
     if (canRefresh() && state.all && state.drawnDay !== todayKey()) onAll(state.all, true);
   }, 30000);
-  document.addEventListener("visibilitychange", function () { if (canRefresh()) load(); });
+  document.addEventListener("visibilitychange", function () { if (canRefresh()) { state.wantSync = true; load(); } });
 
   // 뒤로 가기 등으로 예전 화면이 그대로 되살아난 경우에도 처음 화면으로
   window.addEventListener("pageshow", function (e) {
@@ -2487,6 +2566,7 @@
     resetView();
     renderPage();
     window.scrollTo(0, 0);
+    state.wantSync = true;
     load();
   });
 
@@ -2498,6 +2578,7 @@
     try { cached = JSON.parse(localStorage.getItem(CACHE_KEY) || "null"); } catch (e) {}
     if (cached && cached.bookings) { state.loading = true; onAll(cached, true); }
     if (!window.PENSION_KEY || !API_URL) { $("main").innerHTML = ""; return; }   // 초대 링크 없음: 안내 화면만
+    state.wantSync = true;
     load();
   })();
 </script>
@@ -2509,7 +2590,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.23";
+  var APP_VERSION = "2026.11.23b";
   var UPD_NOTE = "글꼴 · 달력 · 예약 창이 새로워졌어요";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
   var SPARK = '<svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M11 2.5c.6 4.8 2.7 6.9 7.5 7.5-4.8.6-6.9 2.7-7.5 7.5-.6-4.8-2.7-6.9-7.5-7.5 4.8-.6 6.9-2.7 7.5-7.5z"/><circle cx="18.6" cy="18.4" r="1.7"/></svg>';

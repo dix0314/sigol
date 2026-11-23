@@ -74,7 +74,7 @@
     --bgap: 3px;          /* 막대 사이 간격 */
     --maxw: 520px;        /* 넓은 화면에서 최대 폭 (폴더블 · 태블릿 · PC) */
     /* 아래에서 올라오는 창(예약 정보 · 예약하기 · 예약 수정 · 업데이트) 간격: 여기만 바꾸면 모든 창에 같이 적용 */
-    --sh-top: 8px;        /* 제목 ↔ 첫 내용 (예약 정보 카드) */
+    --sh-top: 12px;       /* 제목 ↔ 첫 내용 (예약 정보 카드) */
     --sh-note: 14px;      /* 카드 ↔ 안내 한 줄 */
     --sh-btn: 11px;       /* 내용(안내) ↔ 아래 버튼 */
   }
@@ -362,13 +362,13 @@
   .bk-top { display: flex; align-items: center; gap: 8px; }
   .bk-name { flex: 1 1 auto; min-width: 0; position: relative; top: 1px; font: 700 13px/1.35 var(--font-title); color: #33333b; word-break: keep-all; overflow-wrap: anywhere; }
   .nt { flex: 0 0 auto; font: 700 12px/1 var(--font-body); color: var(--rose); }
-  .st { flex: 0 0 auto; display: inline-flex; align-items: center; border-radius: 999px; padding: 4.5px 9px 3.5px; font: 700 12px/1 var(--font-body); background: #ffe3ea; color: #e0426a; }   /* 위아래: 재서 가운데로 맞춘 여백 */
+  .st { flex: 0 0 auto; display: inline-flex; align-items: center; border-radius: 999px; padding: 5px 9px 4px; font: 700 12px/1 var(--font-body); background: #ffe3ea; color: #e0426a; }   /* 위아래: 재서 가운데로 맞춘 여백 */
   .st.come { background: var(--hot); color: #fff; }
   .st.stay { background: #e3e3ea; color: #565662; }                       /* 머무는 중: 조금 더 짙게 */
   .st.go { background: #c2335d; color: #fff; }
   .st.done { background: #e9e9ee; color: #7d7d89; }                         /* 끝난 일정 */                              /* 가는 날: 짙은 분홍 (오는 날 분홍과 구분) */
   /* 오는 날 · 가는 날 · 머무는 중 앞 기호: 글자와 같은 색 (예약 창의 "오는 일정 · 가는 일정"과 같은 모양) */
-  .st .sti { flex: none; display: block; margin: -2px 3px -2px -1px; }
+  .st .sti { flex: none; display: block; margin: -2px 3px -2px -1px; position: relative; top: -.5px; }   /* 아이콘 · 글자 위아래 맞춤 (재서 정한 값) */
   /* 전체 예약의 "N일 뒤": 카드 색을 따라가고 조금 진하게, 안으로 살짝 파인 느낌 */
   .st.later {
     background: var(--pill); background: color-mix(in srgb, var(--c) 20%, var(--tint)); color: var(--fg);
@@ -640,9 +640,10 @@
   .wi {
     height: 48px; display: flex; align-items: center; justify-content: center; scroll-snap-align: center; cursor: pointer;
     font: 600 22px/1 var(--font-num); color: #c4c4cc; transition: color .15s, transform .15s;
+    -webkit-text-stroke: 0 currentColor; will-change: transform; backface-visibility: hidden; transform-origin: 50% 50%;
   }
   .wcol.ap .wi { font: 400 18px/1 var(--font-title); -webkit-text-stroke: .3px currentColor; }
-  .wi.on { color: #e0426a; font-weight: 800; transform: scale(1.3); }
+  .wi.on { color: #e0426a; -webkit-text-stroke: .7px currentColor; transform: scale(1.3); }   /* 굵기 파일은 그대로 · 외곽선으로 굵게 → 글자 폭이 안 바뀜 */
   .wcol.ap .wi.on { transform: scale(1.15); }
   .wsep { position: relative; flex: 0 0 14px; align-self: center; text-align: center; padding-bottom: 4px; font: 800 26px/1 var(--font-num); color: #e0426a; }
   .wheel.off { opacity: .3; pointer-events: none; filter: grayscale(1); }
@@ -1170,6 +1171,13 @@
     state.page = p;
     state.sel = k;
     state.mode = "day";
+  }
+
+  // 날짜 버튼(예: 11월 23일)을 달력이 다 넘어가기 전에 먼저 바꿔 둠
+  function segPreview(k) {
+    var m = $("main"), d = m.querySelector('.segb[data-mode="day"]'), a = m.querySelector('.segb[data-mode="all"]');
+    if (d) { d.textContent = (+k.split("-")[1]) + "월 " + (+k.split("-")[2]) + "일"; d.classList.add("on"); }
+    if (a) a.classList.remove("on");
   }
 
   // 처음 화면으로 되돌리기
@@ -1880,6 +1888,7 @@
     if (!t || t.disabled) return;
     if (t.hasAttribute("data-today")) {                                       // 오늘: 이번 달로 + 오늘 날짜 고르기
       state.sel = todayKey(); state.mode = "day";
+      segPreview(state.sel);
       if (state.page) goPage(0); else renderPage();
       return;
     }
@@ -1890,7 +1899,7 @@
       var k = t.getAttribute("data-k"), p = pageOf(k);
       state.sel = k;
       state.mode = "day";
-      if (p !== state.page) goPage(p); else renderPage();   // 앞뒤 달 회색 날짜 → 그 달로 넘어감
+      if (p !== state.page) { segPreview(k); goPage(p); } else renderPage();   // 앞뒤 달 회색 날짜 → 그 달로 넘어감
       return;
     }
     state.mode = t.getAttribute("data-mode");
@@ -2852,7 +2861,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.23m";
+  var APP_VERSION = "2026.11.23n";
   var UPD_NOTE = "끝난 일정도 달력에서 볼 수 있어요";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }

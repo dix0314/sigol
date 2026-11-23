@@ -74,6 +74,7 @@
     --bgap: 3px;          /* 막대 사이 간격 */
     --maxw: 520px;        /* 넓은 화면에서 최대 폭 (폴더블 · 태블릿 · PC) */
     /* 아래에서 올라오는 창(예약 정보 · 예약하기 · 예약 수정 · 업데이트) 간격: 여기만 바꾸면 모든 창에 같이 적용 */
+    --sh-pad: 19.72px;       /* 창 위 가장자리 ↔ 제목 (모든 창 같음) */
     --sh-top: 12px;       /* 제목 ↔ 첫 내용 (예약 정보 카드) */
     --sh-note: 14px;      /* 카드 ↔ 안내 한 줄 */
     --sh-btn: 11px;       /* 내용(안내) ↔ 아래 버튼 */
@@ -434,7 +435,7 @@
   }
   .sheetbg.open { visibility: visible; opacity: 1; pointer-events: auto; transition: opacity .28s ease, visibility 0s; }
   .sheet {
-    width: 100%; max-width: var(--maxw); margin: 0 auto; max-height: 90vh; max-height: 90dvh; overflow: auto; overscroll-behavior: contain; background: #fff; border-radius: 20px 20px 0 0; padding: 20px 16px calc(18px + env(safe-area-inset-bottom));
+    width: 100%; max-width: var(--maxw); margin: 0 auto; max-height: 90vh; max-height: 90dvh; overflow: auto; overscroll-behavior: contain; background: #fff; border-radius: 20px 20px 0 0; padding: var(--sh-pad) 16px calc(18px + env(safe-area-inset-bottom));   /* 위 여백: :root --sh-pad (모든 창 같음) */
     transform: translateY(100%); transition: transform .3s cubic-bezier(.2, .7, .2, 1);
   }
   .sheetbg.open .sheet { transform: none; }
@@ -563,6 +564,7 @@
   #edNoTime.sel svg { opacity: 1; }
   .pop .actions { margin-top: 14px; }
   .pop .actions button { height: 48px; }
+  #sheetbg .sheet { padding-top: calc(var(--sh-pad) + .28px); }        /* 예약 정보 창은 X 버튼 줄 때문에 제목이 .28px 아래 → 같은 높이로 맞춤 */
   #sheetbg .actions { margin-top: var(--sh-btn); }                          /* 예약 정보 창과 같은 간격 (:root --sh-btn) */
   #sheetbg h3 + .flab { margin-top: 6px; }
   #sheetbg .actions button { height: 48px; font-size: 16px; }                 /* 취소 · 저장 = 삭제하기 · 수정하기와 같은 크기 */
@@ -680,7 +682,7 @@
   .hlist button { flex: 1 1 0; min-width: 0; height: 48px; padding: 0; border: 0; border-radius: 14px; font: 700 16px var(--font-body); }
   .hlist .b-del { flex: 1 1 0 !important; padding: 0; }
   /* 예약을 누르면 올라오는 창: 흰 바탕 + 메인 화면 목록과 똑같은 예약 카드 */
-  #actbg .sheet { position: relative; padding-top: 18px; }                 /* 예약 정보 · X: 처음(20px)보다 살짝 위 · 답답하지 않게 */
+  #actbg .sheet { position: relative; }
   /* X: 제목 글자와 위아래 가운데 · 오른쪽 끝은 아래 카드 오른쪽 끝과 나란히 (화면에서 재서 맞춘 값) */
   #actbg .acx { transform: translate(4.75px, -1.25px); }
   #actbg .b-cancel { background: var(--grey); }
@@ -2872,7 +2874,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.23q";
+  var APP_VERSION = "2026.11.23s";
   var UPD_NOTE = "끝난 일정도 달력에서 볼 수 있어요";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }

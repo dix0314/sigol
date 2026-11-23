@@ -246,7 +246,7 @@
     display: flex; align-items: center; overflow: hidden; border-radius: 7px;
     background: var(--bg);                                                        /* 1~5번 색: 그라데이션 없이 단색 */
     color: var(--fg);
-    font: 500 12.5px/1 var(--font-body); letter-spacing: -.2px; white-space: nowrap;   /* 12.5px: 막대 높이와 맞아 글자가 정확히 가운데 */
+    font: 600 12.5px/1 var(--font-body); letter-spacing: -.2px; white-space: nowrap;   /* 12.5px: 막대 높이와 맞아 글자가 정확히 가운데 */
   }
   .bar::before { content: ''; position: absolute; left: 3px; top: 4px; bottom: 4px; width: 3px; border-radius: 2px; background: var(--c); }
   .bar::after {
@@ -284,11 +284,12 @@
   /* ---------- 달력 아래 목록 ---------- */
   .seg { display: flex; gap: 6px; margin: 22px 4px 12px; }
   .segb {
-    flex: 0 0 auto; height: 34px; padding: 0 15px; border: 0; border-radius: 999px; background: var(--grey); color: var(--sub);
+    flex: 0 0 auto; height: 35px; padding: 0 15px 1px; border: 0;   /* 35px + 아래 1px: 재서 글자가 정확히 가운데 */ border-radius: 999px; background: var(--grey); color: var(--sub);
     display: inline-flex; align-items: center; gap: 6px; font: 700 15px var(--font-body);
   }
   .segb.on { background: var(--hot); color: #fff; }
-  .segb .cnt { font: 800 12px/1 var(--font-body); padding: 4px 8px; border-radius: 999px; background: #fff; color: var(--hot); }
+  .segb[data-mode="all"] { padding-left: 14px; }                          /* 글자 왼쪽 빈 곳만큼 → 글자 + 칩이 좌우 가운데 */
+  .segb .cnt { position: relative; top: .5px; font: 800 12px/1 var(--font-body); padding: 4.5px 8px 3.5px; border-radius: 999px; background: #fff; color: var(--hot); }
   .segb:not(.on) .cnt { background: #fff; color: #6b6b78; box-shadow: 0 0 0 1px #dedee6; }
 
   /* ---------- 예약 카드 ---------- */
@@ -336,9 +337,9 @@
   .bk-top { display: flex; align-items: center; gap: 8px; }
   .bk-name { flex: 1 1 auto; min-width: 0; position: relative; top: 1px; font: 700 13px/1.35 var(--font-title); color: #33333b; word-break: keep-all; overflow-wrap: anywhere; }
   .nt { flex: 0 0 auto; font: 700 12px/1 var(--font-body); color: var(--rose); }
-  .st { flex: 0 0 auto; display: inline-flex; align-items: center; border-radius: 999px; padding: 4px 9px; font: 700 12px/1 var(--font-body); background: #ffe3ea; color: #e0426a; }
+  .st { flex: 0 0 auto; display: inline-flex; align-items: center; border-radius: 999px; padding: 4.5px 9px 3.5px; font: 700 12px/1 var(--font-body); background: #ffe3ea; color: #e0426a; }   /* 위아래: 재서 가운데로 맞춘 여백 */
   .st.come { background: var(--hot); color: #fff; }
-  .st.stay { background: #f0f0f4; color: #7a7a86; }
+  .st.stay { background: #e3e3ea; color: #565662; }                       /* 머무는 중: 조금 더 짙게 */
   .st.go { background: #c2335d; color: #fff; }                              /* 가는 날: 짙은 분홍 (오는 날 분홍과 구분) */
   /* 오는 날 · 가는 날 · 머무는 중 앞 기호: 글자와 같은 색 (예약 창의 "오는 일정 · 가는 일정"과 같은 모양) */
   .st .sti { flex: none; display: block; margin: -2px 3px -2px -1px; }
@@ -445,7 +446,7 @@
   .frow { display: flex; gap: 8px; margin-top: 4px; }
   .sheet input[type=text], .frow input {
     width: 100%; min-width: 0; height: 46px; padding: 0 13px; border: 1px solid #dedee6; border-radius: 12px; outline: none;
-    background: #fff; color: var(--ink); font: 600 16px var(--font-body);
+    background: #fff; color: var(--ink); font: 700 16px var(--font-body);
   }
   .frow input { flex: 1; font-family: var(--font-num); }
   .frow input[type=text] { font-family: var(--font-body); }
@@ -461,7 +462,7 @@
   .pk-go { flex: 1 1 0; min-width: 0; display: flex; border-radius: 14px; background: var(--grey); }
   .pk-arrow { flex: 0 0 22px; display: flex; align-items: center; justify-content: center; color: #c9c9d1; }
   .pk-f {
-    position: relative; flex: 1 1 0; min-width: 0; height: 62px; padding: 0 4px; border: 0; border-radius: 14px; background: transparent; color: var(--ink);
+    position: relative; flex: 1 1 0; min-width: 0; height: 62px; padding: 1.5px 4px 0; border: 0; border-radius: 14px; background: transparent; color: var(--ink);
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; transition: background .15s, box-shadow .15s;
   }
   .pk-pair .pk-f + .pk-f::before { content: ''; position: absolute; left: 0; top: 14px; bottom: 14px; width: 1px; background: #dcdce3; }
@@ -2674,7 +2675,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.23g";
+  var APP_VERSION = "2026.11.23h";
   var UPD_NOTE = "가는 날 표시 · 글자를 다듬었어요";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }

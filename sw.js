@@ -4,7 +4,7 @@
 //  · 서버(script.google.com) 요청은 저장하지 않음
 //  · ★ 앱을 고칠 때마다 아래 CACHE 숫자를 하나 올려 주세요 (v4 → v5 …)
 //      → 쓰는 사람 폰이 새 버전을 통째로 다시 받고, 화면 위에 "새 버전이 준비됐어요" 알림이 뜸
-var CACHE = "pension-app-v5", FONTS = "pension-fonts-v1";
+var CACHE = "pension-app-v7", FONTS = "pension-fonts-v1";
 var FILES = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png",
   "./icon-maskable-512.png", "./apple-touch-icon.png", "./favicon.png",
   "./SebangGothic2-Regular.woff2", "./SebangGothic2-Bold.woff2"];

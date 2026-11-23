@@ -21,8 +21,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
-<!-- 번지(달력 숫자) · Exo 2(시간 숫자) -->
-<link href="https://fonts.googleapis.com/css2?family=Bungee&family=Exo+2:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<!-- 번지(달력 숫자) -->
+<link href="https://fonts.googleapis.com/css2?family=Bungee&display=swap" rel="stylesheet">
 <!-- 프리텐다드(본문 · 버튼 · 달력 일정) -->
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
 <style>
@@ -40,9 +40,8 @@
 
   :root {
     /* 글꼴: 여기만 바꾸면 전체에 적용됩니다 */
-    --font-num: 'Exo 2', 'Pretendard Variable', sans-serif;     /* 시간 숫자 */
-    --font-cal: 'Bungee', 'Exo 2', sans-serif;                  /* 달력 날짜 숫자 (번지) */
-    --cal-cut: .9px;      /* 번지 굵기 줄이기: 칸 바탕색 외곽선이 획 가장자리를 안쪽으로 깎아서 덜 두껍게 — 클수록 가늘게 (0 = 원래 번지 · 추천 .6px ~ 1.2px) */
+    --font-num: 'Pretendard Variable', Pretendard, sans-serif;  /* 시간 숫자 (프리텐다드) */
+    --font-cal: 'Bungee', 'Pretendard Variable', sans-serif;    /* 달력 날짜 숫자 (번지) */
     --font-title: 'SebangGothic', 'Pretendard Variable', sans-serif;   /* 제목 · 이름 (세방고딕 2.0) */
     --font-body: 'Pretendard Variable', Pretendard, 'Apple SD Gothic Neo', sans-serif;   /* 본문 · 버튼 · 달력 일정 (프리텐다드) */
 
@@ -119,16 +118,12 @@
   .hero-top { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
   .status { flex: 0 0 auto; font: 600 12px var(--font-body); color: var(--sub); }
   .status.err { color: #c62828; }
-  /* 일정 동기화: 받는 중엔 분홍 글자 → 다 받으면 시각 자리에 초록 알약 "✓ 동기화 완료"가 톡 (2.6초 뒤 다시 시각) */
+  /* 일정 동기화: 받는 중엔 분홍 글자 → 다 받으면 시각 자리에 초록 글자 "동기화 완료" (2.6초 뒤 다시 시각) */
   .status.syncing { color: var(--hot); }
-  .status.sync { display: inline-flex; align-items: center; gap: 4px; height: 24px; padding: 0 10px 0 7px; border-radius: 999px;
-    background: #e2f6ed; color: #0f8a62; font-weight: 700; box-shadow: inset 0 0 0 1px #c6ecdb; animation: syncPop .5s cubic-bezier(.3, 1.5, .5, 1); }
-  .status.sync svg { flex: none; display: block; }
-  .status.sync svg path { stroke-dasharray: 1; stroke-dashoffset: 1; animation: syncCheck .35s .2s ease-out forwards; }
-  .status.sync.still, .status.sync.still svg path { animation: none; stroke-dashoffset: 0; }   /* 화면을 다시 그릴 때는 톡 효과 없이 */
-  @keyframes syncPop { 0% { transform: scale(.6); opacity: 0; } 100% { transform: none; opacity: 1; } }
-  @keyframes syncCheck { to { stroke-dashoffset: 0; } }
-  @media (prefers-reduced-motion: reduce) { .status.sync, .status.sync svg path { animation: none; stroke-dashoffset: 0; } }
+  .status.sync { color: #0f8a62; font-weight: 700; animation: syncIn .4s ease-out; }
+  .status.sync.still { animation: none; }                                    /* 화면을 다시 그릴 때는 효과 없이 */
+  @keyframes syncIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+  @media (prefers-reduced-motion: reduce) { .status.sync { animation: none; } }
 
   /* ---------- 5주 달력 (항상 보임) ---------- */
   /* 달력 위: 월 + 넘기기 */
@@ -148,7 +143,7 @@
   .cn-tab {
     --tab: #ffdfe7;
     position: relative; z-index: 0; margin-right: auto; margin-bottom: -2px;
-    display: inline-flex; align-items: center; gap: 3px; height: 33px; padding: 0 14px 2px 11px;
+    display: inline-flex; align-items: center; gap: 5px; height: 33px; padding: 0 14px 2px 11px;
     color: var(--rose); border: 1px solid #efcfd8; border-bottom: 0; border-radius: 10px 10px 0 0;
     background: var(--tab);                                                    /* 그림자 없이 단색: 파일철 북마크 느낌만 */
     font: 400 14px/1 var(--font-title); -webkit-text-stroke: .35px currentColor; letter-spacing: .3px;
@@ -207,10 +202,10 @@
   .cnum {
     position: absolute; top: 17px; left: 50%; margin-left: -12px; width: 24px; height: 24px; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font: 400 13px/1 var(--font-cal); letter-spacing: .3px; color: var(--ink);
+    font: 400 13.5px/1 var(--font-cal); letter-spacing: .3px; color: var(--ink);
+    -webkit-text-stroke: .55px var(--cbg, #fff);
   }
-  .fBungee .cnum, .fBungee .pd .pn { -webkit-text-stroke: var(--cal-cut) var(--cbg); }   /* 번지를 다 받은 뒤에만 깎음 */
-  /* 깎는 외곽선 색 = 칸 바탕색 (바탕마다 맞춤) */
+  /* 번지는 굵기가 하나뿐 → 칸 바탕색으로 아주 얇은 테를 둘러 획을 살짝 얇게 (--cbg = 그 칸 바탕색) */
   .cday { --cbg: #fff; }
   .cday.past { --cbg: #f7f7f9; }
   .cday.sel { --cbg: #ffe9ee; }
@@ -257,8 +252,9 @@
   .bar.mix { background: linear-gradient(90deg, #ffdee7 0%, #ece2fd 50%, #d9f3ea 100%); }
   .bar.mix::before { background: linear-gradient(180deg, #ff86a3, #b98cf0, #6fcfb6); }
   /* 저장 중인 새 예약: 살짝 투명 + 누를 수 없음 */
-  .bar.pend, .bk.pend { opacity: .55; pointer-events: none; animation: pendPulse 1.2s ease-in-out infinite alternate; }
-  @keyframes pendPulse { to { opacity: .8; } }
+  .bar.pend, .bk.pend { pointer-events: none; }
+  .bar.pend { opacity: .6; animation: pendPulse 1.2s ease-in-out infinite alternate; }
+  @keyframes pendPulse { to { opacity: .85; } }
   /* 이름이 칸보다 길어 "…"이 될 때만: 글자가 옆으로 끊김 없이 흘러감 (양 끝은 살짝 흐리게) */
   /* 흐르는 범위를 막대 끝 가까이까지 넓힘 (왼쪽 색 띠는 가리지 않음) */
   .bar span.mq {
@@ -547,7 +543,8 @@
   .pd.inr::before { background: var(--bg); }
   .pd.s.rng::before { left: 50%; background: var(--bg); }
   .pd.e.rng::before { right: 50%; background: var(--bg); }
-  .pd .pn { position: relative; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font: 400 13px/1 var(--font-cal); letter-spacing: .3px; color: var(--ink); transition: background .15s; }
+  .pd .pn { position: relative; width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font: 400 12.5px/1 var(--font-cal); letter-spacing: .3px; color: var(--ink); transition: background .15s; }
+  .pd .pn { -webkit-text-stroke: .5px var(--cbg, #fff); }                  /* 번지 살짝 얇게 (달력과 같은 방법) */
   .pd { --cbg: #fff; }
   .pd.inr { --cbg: var(--bg); }
   .pd.sun .pn { color: #e51440; }
@@ -645,13 +642,14 @@
   .delov {
     position: absolute; left: 0; right: 0; top: 0; bottom: 0; z-index: 4; border-radius: 3px 12px 12px 3px;
     display: flex; align-items: center; justify-content: center; gap: 12px; padding: 0 16px;
-    background: rgba(80, 24, 44, .86); background: color-mix(in srgb, var(--dc, #c4304f) 88%, transparent);
+    --dk: color-mix(in srgb, var(--dc, #ff5a7a) 68%, #1c0d18);           /* 카드 색을 짙게 */
+    background: rgba(80, 24, 44, .88); background: color-mix(in srgb, var(--dk) 90%, transparent);
     visibility: hidden; clip-path: circle(0% at 50% 50%);
     transition: clip-path .3s cubic-bezier(.4, 0, .6, 1), visibility 0s linear .3s;
   }
   .sheet.delmode .delov { visibility: visible; clip-path: circle(80% at 50% 50%); transition: clip-path .5s cubic-bezier(.25, .8, .25, 1), visibility 0s; }
   /* 휴지통: 흰 동그라미 안 빨간 휴지통 — 톡 튀어나온 뒤 뚜껑이 들썩, 그 뒤로 가끔 흔들흔들 */
-  .cfm-ico { position: relative; flex: none; width: 46px; height: 46px; border-radius: 50%; background: #fff; color: #e0344f;
+  .cfm-ico { position: relative; flex: none; width: 46px; height: 46px; border-radius: 50%; background: #fff; color: var(--dk, #c4304f);
     display: flex; align-items: center; justify-content: center; box-shadow: 0 6px 16px -6px rgba(0, 0, 0, .5);
     transform: scale(.4); opacity: 0; transition: transform .2s, opacity .15s; }
   .sheet.delmode .cfm-ico { transform: none; opacity: 1; transition: transform .5s .12s cubic-bezier(.3, 1.6, .5, 1), opacity .2s .12s; }
@@ -670,7 +668,13 @@
   }
   .delov.ready .cfm-ico::after { animation-delay: -.8s; }
   @keyframes icoRipple { 0% { transform: scale(1); opacity: .9; } 100% { transform: scale(1.7); opacity: 0; } }
-  @keyframes icoBlink { 0%, 100% { background: #fff; } 50% { background: #ffe1e7; } }
+  @keyframes icoBlink { 0%, 100% { background: #fff; } 50% { background: color-mix(in srgb, var(--dc, #ff5a7a) 16%, #fff); } }
+  /* 6번(단체): 짙은 분홍 → 보라 → 청록이 비스듬히 이어지는 막 + 은은하게 흐름, 휴지통은 보라 */
+  .delov.mix { --dk: #6f3c93;
+    background: linear-gradient(120deg, rgba(168, 52, 92, .92) 0%, rgba(111, 60, 147, .92) 50%, rgba(22, 120, 100, .92) 100%);
+    background-size: 200% 100%; }
+  .sheet.delmode .delov.mix { animation: delMix 6s ease-in-out infinite alternate; }
+  @keyframes delMix { from { background-position: 0% 0; } to { background-position: 100% 0; } }
   .cfm-q { min-width: 0; color: #fff; font: 700 15.5px/1.35 var(--font-body); letter-spacing: -.2px; word-break: keep-all; text-shadow: 0 1px 2px rgba(0, 0, 0, .2);
     opacity: 0; transform: translateX(-6px); transition: opacity .15s, transform .2s; }
   .sheet.delmode .cfm-q { opacity: 1; transform: none; transition: opacity .3s .2s, transform .4s .2s cubic-bezier(.2, .7, .2, 1); }
@@ -740,9 +744,12 @@
   .dwait { flex: 0 0 auto; display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px 4px 7px; border-radius: 999px; background: #fff; color: #e0344f;
     box-shadow: inset 0 0 0 1px #f6c9d1; font: 400 12px/1 var(--font-title); white-space: nowrap; }
   .dwait i { width: 10px; height: 10px; border-radius: 50%; border: 1.6px solid #f6c9d1; border-top-color: #e0344f; animation: spin .8s linear infinite; }
+  /* 등록 · 수정 대기중: 같은 모양, 카드 색을 따라감 */
+  .dwait.up { color: var(--fg); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 35%, transparent); }
+  .dwait.up i { border-color: color-mix(in srgb, var(--c) 30%, transparent); border-top-color: var(--c); }
   @media (prefers-reduced-motion: reduce) {
     .delov, .cfm-ico, .cfm-q, .hbtns .hlist, .hbtns .delact { transition: none !important; }
-    .sheet.delmode .cfm-ico svg, .sheet.delmode .cfm-ico .lid { animation: none; }
+    .sheet.delmode .cfm-ico svg, .sheet.delmode .cfm-ico .lid, .sheet.delmode .delov.mix { animation: none; }
     .b-kill .kfill, .b-kill .kline rect, .b-kill .kwave, .b-kill .kwave::before { animation: none !important; }
     .b-kill.ready .kfill { clip-path: none; }
     .b-kill.ready, .b-kill.ready::after, .delov.ready .cfm-ico .lid, .delov.ready .cfm-ico, .dwait i { animation: none !important; }
@@ -756,30 +763,26 @@
   }
   .toast.show { opacity: 1; }
 
-  /* 새 버전 알림: 위에서 통통 내려오는 알약 (6초 뒤 · 누르면 사라짐) */
+  /* 새 버전 알림: 위에서 내려오는 흰 알약 + 나무 아이콘 (6초 뒤 · 누르면 사라짐) */
   .upd {
     position: fixed; z-index: 90; left: 50%; top: calc(10px + env(safe-area-inset-top)); max-width: calc(100% - 28px);
-    display: flex; align-items: center; gap: 10px; padding: 8px 14px 8px 8px; border: 0; border-radius: 999px; overflow: hidden;
+    display: flex; align-items: center; gap: 10px; padding: 9px 16px 9px 12px; border: 0; border-radius: 999px; overflow: hidden;
     background: #fff; color: var(--ink); text-align: left; font-family: var(--font-body); pointer-events: none;
-    box-shadow: 0 12px 28px -12px rgba(236, 63, 104, .6), 0 0 0 1.5px #ffd3dd;
+    box-shadow: 0 10px 24px -12px rgba(40, 30, 60, .35), 0 0 0 1px #f0d6dd;
     transform: translate(-50%, calc(-100% - 30px)); opacity: 0; transition: transform .5s cubic-bezier(.2, .9, .25, 1.2), opacity .25s;
   }
   .upd.show { transform: translate(-50%, 0); opacity: 1; pointer-events: auto; }
-  .upd::after { content: ''; position: absolute; top: 0; bottom: 0; left: -40%; width: 40%; pointer-events: none;
-    background: linear-gradient(100deg, rgba(255, 255, 255, 0), rgba(255, 220, 230, .7), rgba(255, 255, 255, 0)); }
-  .upd.show::after { animation: updSheen 1.1s .45s ease-out both; }
-  @keyframes updSheen { from { left: -40%; } to { left: 110%; } }
-  .upd .ui { flex: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #fff;
-    background: linear-gradient(135deg, #ff7f9a, #ff3f6c); box-shadow: 0 3px 8px -3px rgba(255, 63, 108, .7); }
-  .upd.show .ui svg { animation: updTwinkle 2.2s ease-in-out infinite; }
-  @keyframes updTwinkle { 0%, 100% { transform: none; } 50% { transform: scale(1.15) rotate(15deg); } }
+  .upd .ui { flex: none; display: flex; align-items: center; padding-left: 4px; color: var(--rose); }
   .upd .ut { min-width: 0; }
   .upd b { display: block; font: 700 14px/1.25 var(--font-body); white-space: nowrap; }
   .upd small { display: block; margin-top: 1px; font: 500 12px/1.3 var(--font-body); color: #8a8a95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
   .upd .ua { flex: none; margin-left: 2px; padding: 7px 11px; border-radius: 999px; background: var(--soft); color: var(--hot); font: 700 12.5px/1 var(--font-body); }
-  @media (prefers-reduced-motion: reduce) { .upd { transition: opacity .2s; } .upd.show::after, .upd.show .ui svg { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { .upd { transition: opacity .2s; } }
 
   #gate[hidden], #arrow[hidden] { display: none !important; }
+  /* 안드로이드 하단(제스처 · 버튼 막대) 자리 분홍: 폰이 앱 화면을 하단 막대 뒤까지 그릴 때만 보임 (아니면 높이 0) */
+  .navfill { display: none; position: fixed; left: 0; right: 0; bottom: 0; height: env(safe-area-inset-bottom); z-index: 200; background: var(--hot); pointer-events: none; }
+  .android .navfill { display: block; }
   /* =============================================================
      설치 안내 · 초대 링크 화면 (앱 위에 덮는 흰 화면)
      ============================================================= */
@@ -879,6 +882,7 @@
   </div>
 
   <div class="toast" id="toast"></div>
+  <div class="navfill" aria-hidden="true"></div>
   <button class="upd" id="upd" aria-live="polite"></button>
 
 <script>
@@ -919,6 +923,7 @@
   var ua = navigator.userAgent;
   var isIOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   var isAndroid = /Android/i.test(ua);
+  if (isAndroid) document.documentElement.classList.add("android");
   var isKakao = /KAKAOTALK/i.test(ua);
   var isInApp = /NAVER|BAND\/|Instagram|FBAN|FBAV|Line\/|DaumApps|everytimeApp|; wv\)/i.test(ua);
   var isIOSOther = isIOS && /CriOS|FxiOS|EdgiOS|Whale|NAVER|GSA\//.test(ua);
@@ -1207,9 +1212,8 @@
     if (flash) syncFlash(flash);
   }
 
-  // 동기화 알림: 시각 자리에 "✓ 동기화 완료" 알약을 잠깐 보여 줌
+  // 동기화 알림: 시각 자리에 "동기화 완료" 글자를 잠깐 보여 줌
   var SYNC_MS = 2600;
-  var ICON_SYNC = '<svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path pathLength="1" d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   function syncFlash(msg) {
     state.syncMsg = msg;
     state.syncUntil = Date.now() + SYNC_MS;
@@ -1232,7 +1236,7 @@
       if (el.getAttribute("data-sync") === String(state.syncUntil)) return;          // 이미 보이는 중
       el.className = "status sync" + (state.syncShown === state.syncUntil ? " still" : "");
       el.setAttribute("data-sync", state.syncUntil);
-      el.innerHTML = ICON_SYNC + "<span>" + esc(state.syncMsg) + "</span>";
+      el.textContent = state.syncMsg;
       state.syncShown = state.syncUntil;
       return;
     }
@@ -1254,7 +1258,13 @@
   var ST_OUT = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M10 12h11M17 8l4 4-4 4"/></svg>';
   var ST_ZZ = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5h8l-8 9.5h8"/><path d="M15 3.5h5.5l-5.5 6.5h5.5" stroke-width="2"/></svg>';
   // 나무(잎) 아이콘 — 앱 아이콘과 같은 그림: 분홍 잎(위가 뾰족 · 아래 둥긂) + 끝부분은 옅게 + 흰 줄기 · 가지 둘 + 아래 꼭지
-  var ICON_TREE = '<svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><defs><linearGradient id="tabLeaf" gradientUnits="userSpaceOnUse" x1="0" y1="2" x2="0" y2="22.6"><stop offset="0" stop-color="#ff8aa3"/><stop offset="1" stop-color="#ea3a64"/></linearGradient></defs><rect x="10.75" y="18.8" width="2.5" height="3.7" rx="1.25" fill="url(#tabLeaf)"/><path fill="url(#tabLeaf)" d="M11.2 2.3C11.6 1.6 12.4 1.6 12.8 2.3L17.6 13C18.2 14.3 18.4 15.3 18.4 16.3C18.4 18.8 16.9 20.4 14.5 20.4H9.5C7.1 20.4 5.6 18.8 5.6 16.3C5.6 15.3 5.8 14.3 6.4 13Z"/><path fill="#fff" opacity=".45" d="M11.2 2.3C11.6 1.6 12.4 1.6 12.8 2.3L16.05 9.6H7.95Z"/><g fill="none" stroke="#fff" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7.2V18.4"/><path d="M9.3 12.5L12 14.4L14.7 12.5"/><path d="M8.3 15.2L12 17.6L15.7 15.2"/></g></svg>';
+  // 나무 아이콘 — 앱 아이콘과 같은 모양, 색은 옆 글자와 같은 색(currentColor) · 끝부분은 옅게 · 줄기 · 가지는 흰색
+  //  · 그림 둘레 빈 곳을 잘라 내서(viewBox) 나무 왼쪽 끝이 탭 안쪽 여백에 딱 맞게 → 글자와 함께 왼쪽 정렬
+  var ICON_TREE = '<svg class="tree" viewBox="5.3 1.3 13.4 21.4" width="14" height="22" aria-hidden="true">' +
+    '<rect x="10.75" y="18.8" width="2.5" height="3.7" rx="1.25" fill="currentColor"/>' +
+    '<path fill="currentColor" d="M11.2 2.3C11.6 1.6 12.4 1.6 12.8 2.3L17.6 13C18.2 14.3 18.4 15.3 18.4 16.3C18.4 18.8 16.9 20.4 14.5 20.4H9.5C7.1 20.4 5.6 18.8 5.6 16.3C5.6 15.3 5.8 14.3 6.4 13Z"/>' +
+    '<path fill="#fff" opacity=".45" d="M11.2 2.3C11.6 1.6 12.4 1.6 12.8 2.3L16.05 9.6H7.95Z"/>' +
+    '<g fill="none" stroke="#fff" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7.2V18.4"/><path d="M9.3 12.5L12 14.4L14.7 12.5"/><path d="M8.3 15.2L12 17.6L15.7 15.2"/></g></svg>';
   var ICON_REFRESH = '<svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>';
 
   // 숫자를 한 글자씩 같은 폭 상자에 넣음
@@ -1596,7 +1606,7 @@
       mid = tb.top + tb.height * .5;                       // 못 재는 브라우저: 예전 방식
     }
     var ib = ic.getBoundingClientRect();
-    var iconMid = ib.top + ib.height * (1.6 + 22.5) / 2 / 24;   // 나무 그림은 24칸 중 1.6 ~ 22.5 에 있음
+    var iconMid = ib.top + ib.height * (12.05 - 1.3) / 21.4;   // 나무 그림(1.6 ~ 22.5)의 가운데 — 잘라 낸 그림 칸(1.3 ~ 22.7) 기준
     tab.style.setProperty("--iconY", (Math.round((mid - iconMid) * 2) / 2) + "px");
   }
 
@@ -1618,12 +1628,6 @@
   // 글꼴은 화면에 처음 쓰일 때 받아지므로, 받아질 때마다 다시 잼 (막대 이름이 그제야 길어져 "…"이 되는 경우 흐르게)
   if (document.fonts && document.fonts.addEventListener) {
     document.fonts.addEventListener("loadingdone", function () { alignIcon(); alignLines(); marqueeBars(); ringCards(); });
-  }
-  // 번지(달력 숫자)를 다 받으면 html 에 fBungee 표시 → 그때부터 획을 깎는 외곽선 적용
-  if (document.fonts && document.fonts.load) {
-    document.fonts.load("400 13px Bungee").then(function () {
-      if (document.fonts.check("400 13px Bungee")) document.documentElement.classList.add("fBungee");
-    }, function () {});
   }
   // 막대 · 카드에 쓰는 세방고딕 두 굵기를 미리 받아 둠
   if (document.fonts && document.fonts.load) {
@@ -1690,7 +1694,7 @@
         var top = DH + g.lane * (BAR + BGAP);
         var left = "calc(" + g.c0 + " * 100% / 7 + " + (g.l ? 0 : 2) + "px)";
         var width = "calc(" + span + " * 100% / 7 - " + ((g.l ? 0 : 2) + (g.r ? 0 : 2)) + "px)";
-        h += '<div class="bar' + (colorNo(g.b) === MIX ? " mix" : "") + (g.l ? " l" : "") + (g.r ? " r" : "") + (g.b.go < tk ? " past" : "") + (g.b.pend ? " pend" : "") + (g.b.delPending ? " delwait" : "") + '" data-bk="' + g.b.id + '" ' +
+        h += '<div class="bar' + (colorNo(g.b) === MIX ? " mix" : "") + (g.l ? " l" : "") + (g.r ? " r" : "") + (g.b.go < tk ? " past" : "") + (g.b.pend || g.b.editPending ? " pend" : "") + (g.b.delPending ? " delwait" : "") + '" data-bk="' + g.b.id + '" ' +
           'style="top:' + top + "px;left:" + left + ";width:" + width + ";--c:" + c[0] + ";--bg:" + c[1] + ";--fg:" + c[2] + '">' +
           "<span>" + esc(g.b.text) + '</span><i class="mqm" aria-hidden="true">' + esc(g.b.text) + "</i></div>";
       });
@@ -1726,13 +1730,15 @@
     }
     var c = colorOf(b), n = Math.max(0, dayDiff(b.come, b.go)), mix = colorNo(b) === MIX;
     // 오늘이 오는 날 ~ 가는 날 사이 (오늘 일정 · 진행 중) → 움직이는 효과 (다시 그려도 이어지게 시간에 맞춘 시작점)
-    var live = b.come <= tk && b.go >= tk && !b.delPending;
+    var wait = b.pend || b.editPending;                              // 등록 · 수정 대기중 (서버 저장 전)
+    var live = b.come <= tk && b.go >= tk && !b.delPending && !wait;
     if (b.delPending) st = '<span class="dwait"><i></i>삭제 대기중</span>';
+    else if (wait) st = '<span class="dwait up"><i></i>' + (b.pend ? "등록" : "수정") + " 대기중</span>";
     var liveStyle = live ? ";--d:" + (-(Date.now() % (mix ? 5000 : 2600))) + "ms" : "";
     // 테두리 빛(빙글빙글): 오늘 머무는 카드 + 달력에서 고른 날에 걸친 카드 (고른 날 목록은 모두 그날 일정)
-    var spin = !b.delPending && (live || (!!day && b.come <= day && b.go >= day));
+    var spin = !b.delPending && !wait && (live || (!!day && b.come <= day && b.go >= day));
     var ring = (spin ? '<svg class="ring" aria-hidden="true">' + RING_TAIL.map(function () { return "<path/>"; }).join("") + "</svg>" : "") + (mix ? LN_MIX : "");
-    return '<div class="bk' + (mix ? " mix" : "") + (live ? " live" : "") + (b.pend ? " pend" : "") + (b.delPending ? " delwait" : "") + '" data-bk="' + b.id + '" style="--c:' + c[0] + ";--fg:" + c[2] + ";--tint:" + c[3] + ";--pill:" + c[4] + liveStyle + '">' +
+    return '<div class="bk' + (mix ? " mix" : "") + (live ? " live" : "") + (b.pend || b.editPending ? " pend" : "") + (b.delPending ? " delwait" : "") + '" data-bk="' + b.id + '" style="--c:' + c[0] + ";--fg:" + c[2] + ";--tint:" + c[3] + ";--pill:" + c[4] + liveStyle + '">' +
       '<div class="bk-top"><div class="bk-name">' + esc(b.text) + "</div>" + st + "</div>" +
       '<div class="bk-dates">' +
         '<div class="lab">오는 날</div><div class="lab go">가는 날</div>' +
@@ -1975,6 +1981,7 @@
     var b = findBk(id);
     if (!b) return;
     if (b.delPending) { toast("삭제 대기중이에요"); return; }
+    if (b.pend || b.editPending) { toast("저장 대기중이에요"); return; }
     state.act = b;
     closeDel();
     var day = state.mode === "day" && state.sel && b.come <= state.sel && b.go >= state.sel ? state.sel : null;
@@ -2063,7 +2070,8 @@
   function openDel(b) {
     if (!b || state.killing) return;
     var sh = $("actbg").querySelector(".sheet"), ov = $("delov"), ok = $("delOk");
-    ov.style.setProperty("--dc", colorOf(b)[2]);                 // 덮는 막 = 이 예약 색의 짙은 색
+    ov.style.setProperty("--dc", colorOf(b)[0]);                 // 덮는 막 · 휴지통 = 이 예약 색을 짙게
+    ov.classList.toggle("mix", colorNo(b) === MIX);              // 6번(단체): 세 색 그라데이션
     ok.disabled = true;
     ok.setAttribute("data-fill", DEL_FILL);
     ok.style.setProperty("--kt", DEL_ARM_MS + "ms");
@@ -2503,7 +2511,8 @@
         openBg("sheetbg");
       });
     } else {
-      send(req, "저장 완료", function () { setBusy(["edSave", "edCancel"], false); });
+      // 수정도 바로 화면에 반영하고 카드에 "수정 대기중" → 서버 저장이 끝나면 최신 데이터로 (실패하면 원래대로 + 수정 창 다시 열기)
+      sendEdit(req, ed, text);
     }
   };
 
@@ -2532,6 +2541,38 @@
         state.all.bookings = state.all.bookings.filter(function (b) { return b !== bk; });
         renderPage();
         reopen();
+        toast(saveErr(err));
+      })
+      .saveBooking(req);
+  }
+
+  function sendEdit(req, ed, text) {
+    var b = findBk(ed.id);
+    if (!b) { send(req, "저장 완료", function () { setBusy(["edSave", "edCancel"], false); }); return; }
+    var my = ++state.seq, before = { come: b.come, go: b.go, time: b.time, text: b.text, color: b.color };
+    state.pending = (state.pending || 0) + 1;
+    closeAll();
+    b.come = ed.come; b.go = ed.go; b.time = ed.time; b.text = text; b.color = ed.color; b.editPending = true;
+    renderPage();
+    google.script.run
+      .withSuccessHandler(function (all) {
+        state.pending--;
+        b.editPending = false;
+        state.sig = "";                                                               // 받은 내용으로 반드시 다시 그림
+        if (my === state.seq) onAll(all, false); else { renderPage(); if (!state.pending) load(); }
+        toast("수정 완료");
+      })
+      .withFailureHandler(function (err) {
+        state.pending--;
+        b.come = before.come; b.go = before.go; b.time = before.time; b.text = before.text; b.color = before.color; b.editPending = false;
+        renderPage();
+        state.edit = ed; ed.pop = null;
+        $("sheetbg").classList.remove("fab");
+        $("edTitle").textContent = "예약 수정";
+        $("edText").value = text;
+        renderEdit();
+        setBusy(["edSave", "edCancel"], false);
+        openBg("sheetbg");
         toast(saveErr(err));
       })
       .saveBooking(req);
@@ -2590,17 +2631,16 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.23b";
-  var UPD_NOTE = "글꼴 · 달력 · 예약 창이 새로워졌어요";
+  var APP_VERSION = "2026.11.23c";
+  var UPD_NOTE = "달력 글꼴 · 삭제 화면 · 대기중 표시가 바뀌었어요";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
-  var SPARK = '<svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M11 2.5c.6 4.8 2.7 6.9 7.5 7.5-4.8.6-6.9 2.7-7.5 7.5-.6-4.8-2.7-6.9-7.5-7.5 4.8-.6 6.9-2.7 7.5-7.5z"/><circle cx="18.6" cy="18.4" r="1.7"/></svg>';
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
   function show(title, sub, act, reload) {
     var gate = document.getElementById("gate");
     if (gate && !gate.hidden) return;                            // 설치 · 초대 안내 화면에서는 안 띄움
     reloadOnTap = !!reload;
-    el.innerHTML = '<span class="ui">' + SPARK + '</span><span class="ut"><b>' + title + "</b><small>" + sub + "</small></span>" +
+    el.innerHTML = '<span class="ui">' + (window.ICON_TREE || "") + '</span><span class="ut"><b>' + title + "</b><small>" + sub + "</small></span>" +
       (act ? '<span class="ua">' + act + "</span>" : "");
     el.classList.remove("show");
     void el.offsetWidth;

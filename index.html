@@ -233,6 +233,10 @@
   .cday.today .cnum { box-shadow: inset 0 0 0 2px var(--hot); color: var(--hot); }
   .cday.sel .cnum { color: var(--hot); }
   .cday.sel .cnum::after { content: ''; position: absolute; left: 50%; bottom: -6px; width: 14px; height: 3px; margin-left: -7px; border-radius: 2px; background: var(--hot); }
+  /* 지난 날짜를 고르면: 분홍 대신 짙은 회색 (칸 바탕 · 숫자 · 밑줄) */
+  .cday.past.sel { background: #e4e4ea; --cbg: #e4e4ea; }
+  .cday.past.sel .cnum { color: #3f3f4a; }
+  .cday.past.sel .cnum::after { background: #3f3f4a; }
   .cmon { position: absolute; top: 5px; left: 0; right: 0; text-align: center; font: 700 9px/1.2 var(--font-body); color: var(--rose); }
   .cday.today .cmon { color: var(--hot); }
   .cday.past .cmon, .cday.out .cmon { color: #c9c9d1; }
@@ -672,10 +676,13 @@
   #acCard .bk:active { transform: none; }
   .achead h3 { white-space: nowrap; }
   /* 끝난 일정을 열었을 때: 수정 · 삭제 버튼 대신 자물쇠 안내 + 닫기 */
-  .acdone { display: none; margin-top: 18px; }
+  /* 카드 밑 안내 한 줄: 일반 예약 = 남은 날 / 끝난 일정 = 자물쇠 + 종료 (둘 다 안내 + 48px 버튼 → 창 크기 같음) */
+  .acnote { display: flex; align-items: center; justify-content: center; gap: 6px; margin-top: 16px; font: 600 13px/1.35 var(--font-body); color: #8a8a96; text-align: center; word-break: keep-all; }
+  .acnote b { color: #4a4a55; font-weight: 700; }
+  #actbg .hbtns { margin-top: 12px; }
+  .acdone { display: none; margin-top: 12px; }
   #actbg .sheet.ended .hbtns { display: none; }
   #actbg .sheet.ended .acdone { display: block; }
-  .acnote { display: flex; align-items: center; justify-content: center; gap: 6px; margin-bottom: 12px; font: 600 13px/1.3 var(--font-body); color: #8a8a96; }
   .acnote svg { flex: none; }
   .acdone button { width: 100%; height: 48px; border: 0; border-radius: 14px; font: 700 16px var(--font-body); }
 
@@ -889,6 +896,8 @@
           <div class="cfm-q">이 예약을 삭제할까요?</div>
         </div>
       </div>
+      <!-- 카드 밑 안내: "○○ 일정까지 N일이 남아있어요." / 끝난 일정은 "종료된 일정입니다." -->
+      <div class="acnote" id="acNote"></div>
       <!-- 버튼: [삭제하기 | 수정하기] ↔ [삭제 | 취소] 같은 자리 · 같은 크기 (삭제 버튼은 2초 뒤에 눌림) -->
       <div class="hbtns">
         <div class="hlist">
@@ -900,9 +909,8 @@
           <button class="b-cancel" id="delCancel">취소</button>
         </div>
       </div>
-      <!-- 끝난 일정: 수정 · 삭제 버튼 대신 안내 + 닫기 -->
+      <!-- 끝난 일정: 수정 · 삭제 버튼 대신 닫기 -->
       <div class="acdone">
-        <div class="acnote"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>끝난 일정은 수정 · 삭제할 수 없어요</div>
         <button class="b-cancel" id="acDone">닫기</button>
       </div>
     </div>
@@ -1335,7 +1343,7 @@
   // 일정 카드 상태 칩 앞 동그라미 기호: 오는 일정 / 가는 일정 (예약 창과 같은 그림) / 머무는 중 Zᶻ
   var ST_IN = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4"/><path d="M3 12h11M10 8l4 4-4 4"/></svg>';
   var ST_OUT = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H6a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h4"/><path d="M10 12h11M17 8l4 4-4 4"/></svg>';
-  var ST_DONE = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+  var ST_DONE = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 12.6l3.6 3.5 7.4-7.6"/></svg>';   // 굵고 짧은 뭉툭한 체크
   function isDone(b) { return b.go < todayKey(); }                 // 끝난 일정 = 가는 날이 오늘보다 앞
   var ST_ZZ = '<svg class="sti" viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 10.5h8l-8 9.5h8"/><path d="M15 3.5h5.5l-5.5 6.5h5.5" stroke-width="2"/></svg>';
   // 나무(잎) 아이콘 — 앱 아이콘과 같은 그림: 분홍 잎(위가 뾰족 · 아래 둥긂) + 끝부분은 옅게 + 흰 줄기 · 가지 둘 + 아래 꼭지
@@ -1756,7 +1764,7 @@
         lanes[i] = g.c1;
         g.lane = i;
       });
-      var height = Math.max(64, DH + lanes.length * (BAR + BGAP) + 10);   // 막대 아래 여백 10px
+      var height = Math.max(64, DH + lanes.length * (BAR + BGAP) + 6);    // 막대 아래 여백 6px
       if (we < tk && !lanes.length) height = 52;                            // 한 주가 다 지난 줄: 숫자 아래 빈칸을 절반으로
 
       h += '<div class="wk' + (height === 52 ? " flat" : "") + '" style="height:' + height + 'px">';
@@ -2077,13 +2085,26 @@
     box.innerHTML = cardHtml(b, day).replace(' data-bk="' + b.id + '"', "");   // 창 안 카드는 눌러도 아무 일 없음
     fixDigits(box);
     $("acDel").disabled = false;
-    $("actbg").querySelector(".sheet").classList.toggle("ended", isDone(b));   // 끝난 일정: 버튼 대신 안내 + 닫기
+    $("actbg").querySelector(".sheet").classList.toggle("ended", isDone(b));   // 끝난 일정: 버튼 대신 닫기
+    $("acNote").innerHTML = actNote(b);
     $("acTitle").textContent = "예약 정보";
     openBg("actbg");
     alignLines(box);
     ringCards();
   }
   $("acClose").onclick = closeAll;
+  // 카드 밑 안내 한 줄
+  var NOTE_LOCK = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="10.5" width="14" height="10" rx="2.5"/><path d="M8.5 10.5V8a3.5 3.5 0 0 1 7 0v2.5"/></svg>';
+  var NOTE_CLOCK = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>';
+  function actNote(b) {
+    var tk = todayKey(), nm = "<b>" + esc(b.text) + "</b>";
+    if (isDone(b)) return NOTE_LOCK + "<span>종료된 일정입니다.</span>";
+    var t = b.come > tk ? nm + " 일정까지 " + dayDiff(tk, b.come) + "일이 남아있어요."   // 오기 전
+      : b.come === tk ? nm + " 일정이 오늘 시작돼요."                                    // 오는 날 = 오늘
+      : b.go === tk ? nm + " 일정이 오늘 끝나요."                                        // 가는 날 = 오늘
+      : nm + " 일정이 " + dayDiff(tk, b.go) + "일 뒤에 끝나요.";                         // 머무는 중
+    return NOTE_CLOCK + "<span>" + t + "</span>";
+  }
   // 수정하기: 예약 창을 닫지 않고, 그 창이 위로 늘어나며 예약 수정 창으로 바뀜
   $("acEdit").onclick = function () {
     var b = state.act;
@@ -2814,7 +2835,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.23j";
+  var APP_VERSION = "2026.11.23k";
   var UPD_NOTE = "끝난 일정도 달력에서 볼 수 있어요";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }

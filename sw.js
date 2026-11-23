@@ -1,14 +1,20 @@
-// 시골 펜션 — 서비스 워커
-//  · 앱 파일(index.html · 아이콘 · manifest): 저장본을 바로 보여 주고, 뒤에서 새 버전을 받아 둠 (다음 실행부터 반영)
+// 영주 할매 — 서비스 워커
+//  · 앱 파일(index.html · 아이콘 · manifest · 세방고딕 2.0): 저장본을 바로 보여 주고, 뒤에서 새 버전을 받아 둠 (다음 실행부터 반영)
 //  · 글꼴(구글 글꼴 · jsdelivr): 한 번 받으면 저장해 두고 씀
 //  · 서버(script.google.com) 요청은 저장하지 않음
-var CACHE = "pension-app-v3", FONTS = "pension-fonts-v1";
+//  · ★ 앱을 고칠 때마다 아래 CACHE 숫자를 하나 올려 주세요 (v4 → v5 …)
+//      → 쓰는 사람 폰이 새 버전을 통째로 다시 받고, 화면 위에 "새 버전이 준비됐어요" 알림이 뜸
+var CACHE = "pension-app-v4", FONTS = "pension-fonts-v1";
 var FILES = ["./", "./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png",
-  "./icon-maskable-512.png", "./apple-touch-icon.png", "./favicon.png"];
+  "./icon-maskable-512.png", "./apple-touch-icon.png", "./favicon.png",
+  "./SebangGothic2-Regular.woff2", "./SebangGothic2-Bold.woff2"];
 var FONT_HOSTS = ["fonts.googleapis.com", "fonts.gstatic.com", "cdn.jsdelivr.net"];
 
 self.addEventListener("install", function (e) {
-  e.waitUntil(caches.open(CACHE).then(function (c) { return c.addAll(FILES); }).then(function () { return self.skipWaiting(); }));
+  // cache: "reload" → 브라우저에 남아 있는 옛날 파일이 아니라 GitHub 에서 새로 받음
+  e.waitUntil(caches.open(CACHE).then(function (c) {
+    return c.addAll(FILES.map(function (f) { return new Request(f, { cache: "reload" }); }));
+  }).then(function () { return self.skipWaiting(); }));
 });
 self.addEventListener("activate", function (e) {
   e.waitUntil(caches.keys().then(function (keys) {

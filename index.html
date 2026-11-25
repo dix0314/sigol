@@ -74,7 +74,7 @@
     --bgap: 3px;          /* 막대 사이 간격 */
     --maxw: 470px;        /* 넓은 화면에서 최대 폭 (폴더블 · 태블릿 · PC) */
     /* 아래에서 올라오는 창(예약 정보 · 예약하기 · 예약 수정 · 업데이트) 간격: 여기만 바꾸면 모든 창에 같이 적용 */
-    --sh-pad: 19.72px;       /* 창 위 가장자리 ↔ 제목 (모든 창 같음) */
+    --sh-pad: 19px;       /* 창 위 가장자리 ↔ 제목 (모든 창 같음) */
     --sh-top: 12px;       /* 제목 ↔ 첫 내용 (예약 정보 카드) */
     --sh-note: 14px;      /* 카드 ↔ 안내 한 줄 */
     --sh-btn: 11px;       /* 내용(안내) ↔ 아래 버튼 */
@@ -491,7 +491,7 @@
   #sheetbg.fab .sheet > * { opacity: 0; transform: translateY(8px); transition: opacity .12s, transform .12s; }
   #sheetbg.fab.open .sheet > * { opacity: 1; transform: none; transition: opacity .26s .12s, transform .34s .12s cubic-bezier(.2, .7, .2, 1); }
   @media (prefers-reduced-motion: reduce) { #sheetbg.fab .sheet, #sheetbg.fab .sheet > * { transition: none; } }
-  .sheet h3 { margin: 0; font: 700 21px var(--font-title); }
+  .sheet h3 { margin: 0; font: 700 19px var(--font-title); }                 /* 모든 창 제목 같은 크기 */
   #edTitle { display: flex; align-items: baseline; min-width: 0; white-space: nowrap; }
   #edTitle .ttm { flex: none; }
   #edTitle .ttn { min-width: 0; overflow: hidden; text-overflow: ellipsis; margin-right: 6px; color: #e0426a; }   /* 일정명: 제목과 같은 글씨 · 진한 분홍 (길면 …) */
@@ -620,11 +620,10 @@
   #edNoTime.sel svg { opacity: 1; }
   .pop .actions { margin-top: 14px; }
   .pop .actions button { height: 48px; }
-  #sheetbg .sheet { padding-top: calc(var(--sh-pad) + .6px); }        /* 예약 정보 창은 X 버튼 줄 때문에 제목이 .28px 아래 → 같은 높이로 맞춤 */
+  #sheetbg .sheet { padding-top: var(--sh-pad); }        /* 예약 정보 창은 X 버튼 줄 때문에 제목이 .28px 아래 → 같은 높이로 맞춤 */
   #sheetbg .actions { margin-top: var(--sh-btn); }                          /* 예약 정보 창과 같은 간격 (:root --sh-btn) */
-  #sheetbg h3 + .flab { margin-top: 10px; }                                /* 제목 ↔ 누가 오나요? 여백 */
-  #sheetbg h3 { font-size: 19px; }                                         /* 예약하기 · 예약 수정 제목: 조금 작게 */
-  #sheetbg h3::before { top: .5px; bottom: 3.5px; }                             /* 막대 = 글자 위아래와 같은 높이 → 글자가 막대 가운데 (재서 맞춤) */
+  #sheetbg .achead + .flab { margin-top: 10px; }                                /* 제목 ↔ 누가 오나요? 여백 */
+  #sheetbg h3::before, #actbg h3::before, #updbg h3::before { top: .5px; bottom: 3.5px; }                             /* 막대 = 글자 위아래와 같은 높이 → 글자가 막대 가운데 (재서 맞춤) */
   #sheetbg .actions button { height: 48px; font-size: 16px; }                 /* 취소 · 저장 = 삭제하기 · 수정하기와 같은 크기 */
   .popbg[data-k="date"] #popTime, .popbg[data-k="time"] #popDate, .popbg[data-k="date"] #edNoTime { display: none; }
   .popbg[data-k="time"] .pop-tag { display: none; }
@@ -740,7 +739,7 @@
   /* 예약을 누르면 올라오는 창: 흰 바탕 + 메인 화면 목록과 똑같은 예약 카드 */
   #actbg .sheet { position: relative; }
   /* X: 제목 글자와 위아래 가운데 · 오른쪽 끝은 아래 카드 오른쪽 끝과 나란히 (화면에서 재서 맞춘 값) */
-  #actbg .acx { transform: translate(4.75px, -1.25px); }
+  #actbg .acx, #sheetbg .acx { transform: translate(4.5px, -1.9px); }
   #actbg .b-cancel { background: var(--grey); }
   #acCard .bk { margin: var(--sh-top) 0 0; cursor: default; }
   #acCard .bk:active { transform: none; }
@@ -997,7 +996,10 @@
   <!-- 예약하기 / 수정 -->
   <div class="sheetbg" id="sheetbg">
     <div class="sheet">
-      <h3 id="edTitle">예약하기</h3>
+      <div class="achead">
+        <h3 id="edTitle">예약하기</h3>
+        <button class="acx" id="edClose" aria-label="닫기"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
+      </div>
       <div class="flab">누가 오나요?</div>
       <div class="frow"><input type="text" id="edText" placeholder="이름을 입력해 주세요" autocomplete="off" enterkeyhint="done"></div>
       <div class="flab">색상</div>
@@ -2127,7 +2129,16 @@
   $("main").addEventListener("touchcancel", calDragEnd, { passive: true });
 
   // ---------- 창 열고 닫기 ----------
-  function openBg(id) { $(id).classList.add("open"); lockScroll(true); }
+  function openBg(id) { snapSheet(id); $(id).classList.add("open"); lockScroll(true); }
+  // 창 위 끝을 정수 px 에 맞춤: 창은 아래에 붙어서 높이가 소수점이면 위 끝도 소수점 → 제목 글자가 창마다 0~1px 다르게 놓였음
+  //  · 모자란 만큼 아래 여백을 늘려 위 끝을 딱 맞춤 (창 모양은 그대로)
+  function snapSheet(id) {
+    var bg = $(id), sh = bg && bg.querySelector(".sheet");
+    if (!sh) return;
+    sh.style.paddingBottom = "";
+    var h = parseFloat(getComputedStyle(sh).height), top = bg.clientHeight - h, d = top - Math.floor(top);
+    if (d > .001 && d < .999) sh.style.paddingBottom = "calc(" + getComputedStyle(sh).paddingBottom + " + " + d.toFixed(3) + "px)";
+  }
   // 창이 열려 있는 동안 뒤 화면이 스크롤되지 않게 (아이폰 포함)
   function lockScroll(on) {
     var b = document.body;
@@ -2406,6 +2417,7 @@
     $("sheetbg").querySelector(".sheet").scrollTop = 0;
     setBusy(["edSave", "edCancel"], false);
     // 키보드가 바로 열리지 않게 이름 칸에 자동으로 커서를 두지 않음
+    snapSheet("sheetbg");
     if (from) growFrom(from, "sheetbg");
     else if (!b) {                                   // 새 예약: 내용을 다 만든 뒤 다음 프레임에 펼치기 시작 (첫 순간 멈칫하지 않게)
       fabOrigin();
@@ -2869,6 +2881,7 @@
   }
 
   $("edCancel").onclick = closeAll;
+  $("edClose").onclick = closeAll;
   $("edText").addEventListener("input", updSave);
   // 키보드의 완료(이동) 키: 키보드를 닫기만 함 (저장은 저장 버튼으로)
   $("edText").addEventListener("keydown", function (e) {
@@ -3021,7 +3034,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.26g";
+  var APP_VERSION = "2026.11.26h";
   var UPD_NOTE = "캘린더 와이드 대응 및 UI 강화";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }

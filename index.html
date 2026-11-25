@@ -173,10 +173,6 @@
   .status .dots i:nth-child(3) { animation-delay: .3s; }
   @keyframes dotHop { 0%, 60%, 100% { transform: none; opacity: .5; } 30% { transform: translateY(-4px); opacity: 1; } }
   @media (prefers-reduced-motion: reduce) { .status .dots i { animation: none; } }
-  .status.sync { color: #0f8a62; font-weight: 700; animation: syncIn .4s ease-out; }
-  .status.sync.still { animation: none; }                                    /* 화면을 다시 그릴 때는 효과 없이 */
-  @keyframes syncIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
-  @media (prefers-reduced-motion: reduce) { .status.sync { animation: none; } }
 
   /* ---------- 5주 달력 (항상 보임) ---------- */
   /* 달력 위: 월 + 넘기기 */
@@ -353,7 +349,7 @@
   }
   .bk::before { content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 5px; background: var(--c, var(--pink)); z-index: 1; }
   .bk:active { transform: scale(.985); }
-  .bk-top, .bk-dates { position: relative; z-index: 2; }   /* 진행 중 효과(흰 빛) 위로 글자가 오게
+  .bk-top, .bk-dates { position: relative; z-index: 2; }   /* 진행 중 효과(흰 빛) 위로 글자가 오게 */
   /* 오늘 오는 · 머무는 중인 카드 (--d: 20초마다 다시 그려도 움직임이 끊기지 않게 시간에 맞춘 시작점) */
   /* (RUNDOWN 진행 중 카드와 같은 효과) 바탕이 은은하게 숨 쉬듯 진해졌다 옅어지고, 흰 빛이 천천히 훑고 지나감 */
   .bk.live { animation: bkBreath 2.6s ease-in-out infinite; animation-delay: var(--d, 0ms); }
@@ -907,7 +903,6 @@
   .upd .ut { min-width: 0; }
   .upd b { display: block; font: 700 14px/1.25 var(--font-body); white-space: nowrap; }
   .upd small { display: block; margin-top: 1px; font: 500 12px/1.3 var(--font-body); color: #8a8a95; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .upd .ua { flex: none; margin-left: 4px; color: var(--rose); font: 700 13px/1 var(--font-body); }
   @media (prefers-reduced-motion: reduce) { .upd { transition: opacity .2s; } }
 
   #gate[hidden], #arrow[hidden] { display: none !important; }
@@ -931,7 +926,7 @@
   #gate .logo { width: 96px; height: 96px; border-radius: 23px; margin-bottom: 18px; box-shadow: 0 12px 28px -12px rgba(236, 63, 104, .6); }
   #gate h1 { margin: 0; font-size: 28px; line-height: 1.3; }
   #gate .msg { margin: 14px 0 0; font-size: 19px; line-height: 1.6; color: #55555f; word-break: keep-all; }
-  #gate .msg b { color: var(--deep); }
+  #gate .msg b { color: var(--rose); }                                       /* 강조 글자 */
   #gate .btns { width: 100%; max-width: 360px; display: flex; flex-direction: column; gap: 12px; margin-top: 28px; }
   #gate .btn { height: 60px; border: 0; border-radius: 16px; font-family: inherit; font-size: 20px; font-weight: 700; line-height: 1; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; text-decoration: none; }
   #gate .btn.main { background: var(--hot); color: #fff; box-shadow: 0 10px 22px -10px rgba(255, 90, 122, .8); }
@@ -1143,7 +1138,8 @@
     on("ext", function () { location.href = "kakaotalk://web/openExternal?url=" + encodeURIComponent(keyUrl); });
     on("cp", function () { copy(keyUrl); });
   }
-  function intentUrl() { return "intent://" + keyUrl.replace(/^https?:\/\//, "") + "#Intent;scheme=https;package=com.android.chrome;end"; }
+  // 크롬이 없거나 꺼져 있는 폰(삼성 인터넷만 쓰는 폰 등): 플레이스토어 대신 그 주소를 기본 브라우저로 열게 (S.browser_fallback_url)
+  function intentUrl() { return "intent://" + keyUrl.replace(/^https?:\/\//, "") + "#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=" + encodeURIComponent(keyUrl) + ";end"; }
   function screenInApp() {
     if (isAndroid) {
       location.href = intentUrl();
@@ -1288,7 +1284,13 @@
   function keyMs(k) { var p = k.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]).getTime(); }
   function addDays(k, n) { var d = new Date(keyMs(k)); d.setDate(d.getDate() + n); return keyOf(d); }
   function dayDiff(a, b) { return Math.round((keyMs(b) - keyMs(a)) / 864e5); }
-  function todayKey() { return keyOf(new Date()); }
+  // 오늘 = 한국 시간 기준 (해외에 있는 가족 폰에서도 서버 · 달력의 오늘과 같게)
+  var SEOUL_FMT = null;
+  try { SEOUL_FMT = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit", day: "2-digit" }); } catch (e) {}
+  function todayKey() {
+    if (SEOUL_FMT) { var s = SEOUL_FMT.format(new Date()); if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return s; }
+    return keyOf(new Date());
+  }
   function dow(k) { return new Date(keyMs(k)).getDay(); }
   // 빨간 날: 일요일 + RED 시트에 적은 날짜
   function isRed(k) { return dow(k) === 0 || !!(state.all && state.all.reds && state.all.reds.indexOf(k) >= 0); }
@@ -1399,16 +1401,8 @@
     if (flash) syncFlash(flash);
   }
 
-  // 동기화 알림: 시각 자리에 "동기화 완료" 글자를 잠깐 보여 줌
-  var SYNC_MS = 2600;
-  function syncFlash(msg) {
-    updateStatus(); return;                     // 초록 "동기화 완료"는 안 띄움 (시각 옆 체크로 충분)
-    state.syncMsg = msg;
-    state.syncUntil = Date.now() + SYNC_MS;
-    updateStatus();
-    clearTimeout(syncFlash._t);
-    syncFlash._t = setTimeout(updateStatus, SYNC_MS + 30);
-  }
+  // 동기화 끝: 시각 옆 체크 글자만 새로 (따로 알림은 안 띄움)
+  function syncFlash() { updateStatus(); }
 
   function statusText() {
     if (state.err) return "동기화 실패.";
@@ -1420,15 +1414,6 @@
     if (rb) rb.classList.toggle("spin", !!state.loading);
     var el = document.querySelector(".status");
     if (!el) return;
-    if (!state.err && !state.loading && state.syncUntil > Date.now()) {
-      if (el.getAttribute("data-sync") === String(state.syncUntil)) return;          // 이미 보이는 중
-      el.className = "status sync" + (state.syncShown === state.syncUntil ? " still" : "");
-      el.setAttribute("data-sync", state.syncUntil);
-      el.textContent = state.syncMsg;
-      state.syncShown = state.syncUntil;
-      return;
-    }
-    el.removeAttribute("data-sync");
     // 받는 중: 점 세 개가 하나씩 통통 / 끝: [체크] 동기화 - 06:00 (회색)
     if (!state.err && state.loading && state.lastLoad) el.innerHTML = '<span class="dots"><i></i><i></i><i></i></span>';
     else if (!state.err && !state.loading && state.lastLoad) el.innerHTML = ICON_OK + "<span>" + esc(statusText()) + "</span>";
@@ -1933,7 +1918,7 @@
     var liveStyle = live ? ";--d:" + (-(Date.now() % (mix ? 5000 : 2600))) + "ms" : "";
     // 테두리 빛(빙글빙글): 오늘 머무는 카드 + 달력에서 고른 날에 걸친 카드 (고른 날 목록은 모두 그날 일정)
     var spin = live;                                                 // 혜성 테두리 빛: 진행 중인 일정만
-    var ring = (spin ? '<svg class="ring" aria-hidden="true">' + RING_TAIL.map(function () { return "<path/>"; }).join("") + "</svg>" : "") + (mix ? LN_MIX : "");
+    var ring = (spin ? '<svg class="ring" aria-hidden="true">' + RING_TAIL.map(function () { return "<path/>"; }).join("") + "</svg>" : "") + "";
     return '<div class="bk' + (mix ? " mix" : "") + (done ? " done" : "") + (live ? " live" : "") + (b.pend || b.editPending ? " pend" : "") + (b.pend ? " reg" : "") + (b.delPending ? " delwait" : "") + '" data-bk="' + b.id + '" style="--c:' + c[0] + ";--fg:" + c[2] + ";--tint:" + c[3] + ";--pill:" + c[4] + liveStyle + '">' +
       '<div class="bk-top"><div class="bk-name">' + esc(b.text) + "</div>" + st + "</div>" +
       '<div class="bk-dates">' +
@@ -1946,11 +1931,13 @@
       "</div>" + ring + "</div>";
   }
 
-  // 단체 색 카드의 화살표 선 · 테두리 빛 그라데이션 (카드마다 넣어도 같은 이름이라 문제없음)
+  // 단체 색 카드의 화살표 선 · 테두리 빛 그라데이션: 문서에 한 번만 넣고 모든 카드가 같이 씀
+  //  (카드마다 넣으면 같은 id 가 여러 개 → 아이폰에서 카드 하나가 사라질 때 다른 카드 선 색이 없어질 수 있음)
   var MIX_STOPS = '<stop offset="0" stop-color="#ff86a3"/><stop offset=".5" stop-color="#b98cf0"/><stop offset="1" stop-color="#6fcfb6"/>';
   var LN_MIX = '<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>' +
     '<linearGradient id="lnmix" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="120" y2="0">' + MIX_STOPS + '</linearGradient>' +
     '<linearGradient id="ringmix" x1="0" y1="0" x2="1" y2="1">' + MIX_STOPS + "</linearGradient></defs></svg>";
+  document.body.insertAdjacentHTML("beforeend", LN_MIX);
 
   // 박 수만큼 선 (당일은 1개, 8박 이상은 길게 1개)
   function segsHtml(n) {
@@ -2224,6 +2211,7 @@
   $("acEdit").onclick = function () {
     var b = state.act;
     if (!b || state.killing || isDone(b)) return;
+    if (waitSave()) return;
     closeDel();
     state.act = null;
     openSheet(b, null, "actbg");
@@ -2280,7 +2268,7 @@
   //    → 카드 · 막대는 "삭제 대기중"으로 남아 있다가, 서버에서 지워졌다고 확인되면 사라짐 (실패하면 원래대로)
   var DEL_ARM_MS = 2000, DEL_FILL = "line", delT = null;
   var SHEET_STILL = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
-  $("acDel").onclick = function () { if (state.act && !isDone(state.act)) openDel(state.act); };
+  $("acDel").onclick = function () { if (state.act && !isDone(state.act) && !waitSave()) openDel(state.act); };
   $("acDone").onclick = closeAll;
   function vib(p) { if (navigator.vibrate) { try { navigator.vibrate(p); } catch (e) {} } }
   // line 모양: 버튼 크기에 맞춰 테두리 선(둥근 사각형) 길이를 잼
@@ -2398,7 +2386,15 @@
   }
 
   // ---------- 예약하기 / 수정 ----------
-  $("addBtn").onclick = function () { openSheet(null, state.mode === "day" && state.sel && state.sel >= todayKey() ? state.sel : todayKey()); };   // 지난 날을 보고 있으면 오늘로
+  // 저장 · 수정 · 삭제는 한 번에 하나씩: 앞의 저장이 끝나기 전에 또 하면 서버가 줄을 다시 정렬하면서 엉뚱한 예약을 고칠 수 있음
+  function waitSave() {
+    if (!state.pending) return false;
+    toast("앞의 저장이 끝나면 다시 눌러 주세요");
+    return true;
+  }
+  window.appBusy = function () { return !!(state.edit || state.act || state.pending || state.killing); };   // 업데이트 창: 입력 · 저장 중이면 미룸
+  window.appLock = function (on) { lockScroll(on); };
+  $("addBtn").onclick = function () { if (waitSave()) return; openSheet(null, state.mode === "day" && state.sel && state.sel >= todayKey() ? state.sel : todayKey()); };   // 지난 날을 보고 있으면 오늘로
 
   // from: 이 창(지금 열린 창)이 늘어나며 열림 (예약 정보 → 수정하기)
   function openSheet(b, k, from) {
@@ -2425,7 +2421,7 @@
       requestAnimationFrame(function () { if (state.edit === ed) $("sheetbg").classList.add("open"); });
     } else openBg("sheetbg");
   }
-  function oldOf(b) { return { come: b.come, time: b.time, go: b.go, text: b.text }; }
+  function oldOf(b) { return { come: b.come, time: b.time, go: b.go, text: b.text, color: b.color == null ? null : b.color }; }   // 색도 같이 → 누가 색만 바꿔도 알아챔
   function isKey(v) { return /^\d{4}-\d{2}-\d{2}$/.test(v || ""); }
 
   // 지난 날짜 검사: 새 예약은 오늘 이전 날짜가 들어가면 안 됨
@@ -2935,7 +2931,7 @@
     google.script.run
       .withSuccessHandler(function (all) {
         state.pending--;
-        if (my === state.seq) onAll(all, false); else load();
+        if (my === state.seq) onAll(all, false); else { renderPage(); if (!state.pending) load(); }
         toast(okMsg);
       })
       .withFailureHandler(function (err) {
@@ -2987,7 +2983,7 @@
     google.script.run
       .withSuccessHandler(function (all) {
         closeAll();
-        if (my === state.seq) onAll(all, false); else load();
+        if (my === state.seq) onAll(all, false); else { renderPage(); if (!state.pending) load(); }
         toast(okMsg);
       })
       .withFailureHandler(function (err) { onFail(); toast(saveErr(err)); })
@@ -3034,25 +3030,23 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.26h";
+  var APP_VERSION = "2026.11.26i";
   var UPD_NOTE = "캘린더 와이드 대응 및 UI 강화";
-  var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
+  var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }
-  function show(title, sub, act, reload) {
+  function show(title, sub) {
     var gate = document.getElementById("gate");
     if (gate && !gate.hidden) return;                            // 설치 · 초대 안내 화면에서는 안 띄움
-    reloadOnTap = !!reload;
-    el.innerHTML = '<span class="ui">' + (window.ICON_TREE || "") + '</span><span class="ut"><b>' + title + "</b><small>" + sub + "</small></span>" +
-      (act ? '<span class="ua">' + act + "</span>" : "");
+    el.innerHTML = '<span class="ui">' + (window.ICON_TREE || "") + '</span><span class="ut"><b>' + title + "</b><small>" + sub + "</small></span>";
     el.classList.remove("show");
     void el.offsetWidth;
     el.classList.add("show");
     clearTimeout(timer);
-    if (!reload) timer = setTimeout(hide, 6000);
+    timer = setTimeout(hide, 6000);
   }
   function hide() { el.classList.remove("show"); }
-  el.addEventListener("click", function () { if (reloadOnTap) location.reload(); else hide(); });
+  el.addEventListener("click", hide);
 
   // 이 기기에서 전에 쓰던 버전과 다르면 알림 (처음 쓰는 사람은 알림 없음 — 예약 저장본이 있으면 쓰던 사람)
   var prev = get(VER_KEY), used = prev || get("sigol_cache_v1");
@@ -3064,9 +3058,11 @@
   function forceUpdate() {
     var bg = document.getElementById("updbg");
     if (bg.classList.contains("open")) return;
+    // 예약을 적는 중 · 예약 정보를 보는 중 · 저장 중이면 끝날 때까지 기다렸다가 띄움 (적던 내용이 날아가지 않게)
+    if (window.appBusy && window.appBusy()) { clearTimeout(forceUpdate._t); forceUpdate._t = setTimeout(forceUpdate, 1500); return; }
     document.getElementById("updIco").innerHTML = window.ICON_TREE || "";
     bg.classList.add("open");
-    document.body.style.overflow = "hidden";
+    if (window.appLock) window.appLock(true); else document.body.style.overflow = "hidden";
   }
   document.getElementById("updGo").addEventListener("click", function () {
     this.disabled = true; this.textContent = "업데이트 중…";

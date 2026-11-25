@@ -94,23 +94,25 @@
   main { transition: translate .42s cubic-bezier(.2, .8, .2, 1); }
   html.wide, html.wide body { touch-action: pan-y; }                        /* 빈 곳을 옆으로 쓸 때 브라우저가 가로채지 않게 */
   .mvh { display: none; }
+  /* 손잡이: 앱 가장자리 옆 얇은 세로 막대(갤럭시 멀티 윈도우 손잡이 느낌) + 바깥쪽 작은 화살표가 그쪽으로 톡톡 밀려 나감
+     · 누르는 자리는 넓게(44 × 140) 잡고, 보이는 건 막대와 화살표만 · 누른 색이 남지 않게 hover 는 마우스에서만 */
   html.wide .mvh {
-    position: fixed; z-index: 20; top: 50%; width: 36px; height: 96px; margin-top: -48px; padding: 0; border: 0; border-radius: 18px;
-    display: flex; align-items: center; justify-content: center; background: rgba(40, 30, 60, .06); color: #a59aa8; cursor: pointer;
-    transition: left .42s cubic-bezier(.2, .8, .2, 1), opacity .25s, background .15s; -webkit-tap-highlight-color: transparent;
+    position: fixed; z-index: 20; top: 50%; width: 44px; height: 140px; margin-top: -70px; padding: 0; border: 0; background: none;
+    display: flex; align-items: center; justify-content: center; gap: 5px; color: #c9bfc6; cursor: pointer; outline: none;
+    transition: left .42s cubic-bezier(.2, .8, .2, 1), opacity .25s; -webkit-tap-highlight-color: transparent;
   }
-  html.wide .mvh.l { left: calc(50% + var(--shift, 0px) - var(--maxw) / 2 - 50px); }
-  html.wide .mvh.r { left: calc(50% + var(--shift, 0px) + var(--maxw) / 2 + 16px); }
-  html.wide .mvh:hover { background: rgba(40, 30, 60, .1); color: var(--hot); }
-  html.wide .mvh:active { background: var(--soft); color: var(--hot); }
+  html.wide .mvh.r { flex-direction: row-reverse; }
+  html.wide .mvh.l { left: calc(50% + var(--shift, 0px) - var(--maxw) / 2 - 52px); }
+  html.wide .mvh.r { left: calc(50% + var(--shift, 0px) + var(--maxw) / 2 + 8px); }
+  .mvh .grip { flex: none; width: 5px; height: 56px; border-radius: 3px; background: #ddd3d9; transition: background .2s, height .2s; }
+  .mvh svg { flex: none; display: block; animation: mvNudge 1.6s ease-in-out infinite; }
+  .mvh.l svg { --dir: -1; }
+  .mvh.r svg { --dir: 1; }
+  @keyframes mvNudge { 0%, 55%, 100% { transform: none; opacity: .55; } 25% { transform: translateX(calc(var(--dir) * 4px)); opacity: 1; } }
+  @media (hover: hover) { html.wide .mvh:hover { color: var(--hot); } html.wide .mvh:hover .grip { background: #f5a3b6; height: 68px; } }
+  html.wide .mvh.tap .grip { background: var(--hot); }                      /* 누른 순간만 잠깐 분홍 (JS 가 바로 지움) */
   html.wide[data-pos="-1"] .mvh.l, html.wide[data-pos="1"] .mvh.r { opacity: 0; pointer-events: none; }
-  /* 손잡이 안 화살표 셋: 가야 할 쪽으로 차례로 밝아지며 흐름 (스와이프 느낌) */
-  .mvh svg { display: block; overflow: visible; }
-  .mvh svg path { animation: mvFlow 1.8s ease-in-out infinite; opacity: .25; }
-  .mvh svg path:nth-child(2) { animation-delay: .18s; }
-  .mvh svg path:nth-child(3) { animation-delay: .36s; }
-  @keyframes mvFlow { 0%, 70%, 100% { opacity: .22; } 25% { opacity: 1; } }
-  @media (prefers-reduced-motion: reduce) { .mvh svg path { animation: none; opacity: .7; } main, html.wide .mvh { transition: none; } }
+  @media (prefers-reduced-motion: reduce) { .mvh svg { animation: none; } main, html.wide .mvh, .addbtn { transition: none; } }
   .loading { text-align: center; color: var(--sub); padding: 60px 0; font: 600 15px var(--font-body); }
 
   /* ---------- 제목 ---------- */
@@ -163,6 +165,14 @@
   .status.err { color: #c62828; }
   /* 일정 동기화: 받는 중엔 분홍 글자 → 다 받으면 시각 자리에 초록 글자 "동기화 완료" (2.6초 뒤 다시 시각) */
   .status.syncing { color: var(--hot); }
+  .status { display: inline-flex; align-items: center; gap: 4px; }
+  .status .ok { flex: none; color: #b5b5bf; position: relative; top: -.5px; }
+  .status .dots { display: inline-flex; align-items: center; gap: 4px; height: 14px; padding: 0 2px; }
+  .status .dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--hot); animation: dotHop 1s ease-in-out infinite; }
+  .status .dots i:nth-child(2) { animation-delay: .15s; }
+  .status .dots i:nth-child(3) { animation-delay: .3s; }
+  @keyframes dotHop { 0%, 60%, 100% { transform: none; opacity: .5; } 30% { transform: translateY(-4px); opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .status .dots i { animation: none; } }
   .status.sync { color: #0f8a62; font-weight: 700; animation: syncIn .4s ease-out; }
   .status.sync.still { animation: none; }                                    /* 화면을 다시 그릴 때는 효과 없이 */
   @keyframes syncIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
@@ -305,6 +315,7 @@
   .bar.mix.past::before { background: linear-gradient(180deg, #e3b0be, #cdbbe2, #addacd); }
   /* 저장 중인 새 예약: 살짝 투명 + 누를 수 없음 */
   .bar.pend, .bk.pend { pointer-events: none; }
+  .bk.reg { opacity: .55; }                                                 /* 등록 대기중: 카드 살짝 흐리게 */
   .bar.pend { opacity: .6; animation: pendPulse 1.2s ease-in-out infinite alternate; }
   @keyframes pendPulse { to { opacity: .85; } }
   /* 이름이 칸보다 길어 "…"이 될 때만: 글자가 옆으로 끊김 없이 흘러감 (양 끝은 살짝 흐리게) */
@@ -387,7 +398,7 @@
   /* 앞으로 올 일정: 닌텐도 스위치 2 고른 버튼처럼 — 카드 둘레에 옅은 선 + 그 위를 빛나는 선이 천천히 빙글빙글 */
   @property --ra { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
   .bk.soon::after {
-    content: ''; position: absolute; inset: 0; z-index: 3; border-radius: inherit; padding: 2px; pointer-events: none;
+    content: ''; position: absolute; inset: 0; z-index: 0; border-radius: inherit; padding: 2px; pointer-events: none;   /* 왼쪽 색 띠(z 1) 밑으로 */
     background: conic-gradient(from var(--ra), var(--g1), var(--g2), var(--g3), var(--g2), var(--g1));
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
     mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
@@ -452,13 +463,13 @@
   .empty { margin: 4px 4px 0; padding: 22px 16px; border: 1px dashed #e9d3da; border-radius: 14px; text-align: center; color: var(--sub); font: 600 15px/1.5 var(--font-body); }
 
   /* ---------- 아래 큰 버튼 ---------- */
-  /* 예약하기: 오른쪽 아래 동그란 버튼 (달력 + 더하기 아이콘) — 넓은 화면에서도 화면 오른쪽 아래에 고정 (앱 위치와 상관없이) */
+  /* 예약하기: 오른쪽 아래 동그란 버튼 (달력 + 더하기 아이콘) — 넓은 화면에선 앱(달력) 오른쪽 끝을 따라 같이 움직임 */
   .addbtn {
-    position: fixed; z-index: 30; right: 18px; bottom: calc(20px + env(safe-area-inset-bottom));
+    position: fixed; z-index: 30; right: max(18px, calc((100vw - var(--maxw)) / 2 + 18px - var(--shift, 0px))); bottom: calc(20px + env(safe-area-inset-bottom));
     width: 58px; height: 58px; padding: 0; border: 0; border-radius: 50%; background: var(--hot); color: #fff;
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 8px 18px -6px rgba(255, 90, 122, .65), 0 2px 5px rgba(196, 48, 79, .18);
-    transition: transform .15s; touch-action: manipulation;
+    transition: transform .15s, right .42s cubic-bezier(.2, .8, .2, 1); touch-action: manipulation;
   }
   .addbtn:active { transform: scale(.93); }
 
@@ -493,7 +504,7 @@
   .sheet h3 { margin: 0; font: 700 21px var(--font-title); }
   #edTitle { display: flex; align-items: baseline; min-width: 0; white-space: nowrap; }
   #edTitle .ttm { flex: none; }
-  #edTitle .ttn { min-width: 0; overflow: hidden; text-overflow: ellipsis; margin-left: 1px; color: #eaa3b5; }   /* 일정명: 제목과 같은 글씨 · 옅은 분홍 */
+  #edTitle .ttn { min-width: 0; overflow: hidden; text-overflow: ellipsis; margin-right: 6px; color: #e0426a; }   /* 일정명: 제목과 같은 글씨 · 진한 분홍 (길면 …) */
   .sheet .sub { margin: 6px 0 0; font: 700 15px/1.4 var(--font-body); color: var(--navy); }
   /* 예약 정보: 오는 날 / 가는 날 두 줄 */
   .sinfo { margin-top: 12px; }
@@ -599,8 +610,8 @@
   #edNoTime { display: inline-flex; align-items: center; gap: 4px; padding: 0 13px 0 10px; background: #ececf1; color: #7a7a86; transition: background .15s, color .15s, box-shadow .15s;
     box-shadow: inset 0 1px 2.5px rgba(40, 30, 60, .2), inset 0 -1px 0 rgba(255, 255, 255, .6); }   /* 안 눌렀을 때도 파인 회색 버튼 */
   #edNoTime svg { flex: none; display: block; opacity: .55; transition: opacity .15s; }
-  #edNoTime.sel { background: #ffe2e9; color: #f04f78;                   /* 시간 미정: 분홍 + 안으로 파인 느낌 */
-    box-shadow: inset 0 1.5px 3.5px rgba(255, 90, 122, .38), inset 0 -1px 0 rgba(255, 255, 255, .7); }
+  #edNoTime.sel { background: #ffe6ec; color: #f04f78;                   /* 시간 미정 켬: 분홍 + 튀어나온 느낌 (끔: 파인 회색) */
+    box-shadow: 0 2px 6px -1px rgba(255, 90, 122, .4), 0 1px 1.5px rgba(196, 48, 79, .16), inset 0 1px 0 rgba(255, 255, 255, .9), inset 0 -1px 0 rgba(255, 90, 122, .12); }
   #edNoTime.sel svg { opacity: 1; }
   .pop .actions { margin-top: 14px; }
   .pop .actions button { height: 48px; }
@@ -939,8 +950,8 @@
   <div id="arrow" hidden><svg viewBox="0 0 56 70" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M28 6v54M8 40l20 20 20-20"/></svg></div>
   <main id="main"><div class="loading">불러오는 중…</div></main>
   <!-- 넓은 화면: 앱 옆 빈 곳의 손잡이 (누르면 앱이 그쪽으로 옮겨감) -->
-  <button class="mvh l" id="mvL" aria-label="앱을 왼쪽으로"><svg viewBox="0 0 20 16" width="20" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17.5 2.5L12 8l5.5 5.5"/><path d="M11 2.5L5.5 8l5.5 5.5"/><path d="M4.5 2.5L-1 8l5.5 5.5"/></svg></button>
-  <button class="mvh r" id="mvR" aria-label="앱을 오른쪽으로"><svg viewBox="0 0 20 16" width="20" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 2.5L8 8l-5.5 5.5"/><path d="M9 2.5L14.5 8 9 13.5"/><path d="M15.5 2.5L21 8l-5.5 5.5"/></svg></button>
+  <button class="mvh l" id="mvL" aria-label="앱을 왼쪽으로"><span class="grip"></span><svg viewBox="0 0 12 16" width="12" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 3L3.5 8l5 5"/></svg></button>
+  <button class="mvh r" id="mvR" aria-label="앱을 오른쪽으로"><span class="grip"></span><svg viewBox="0 0 12 16" width="12" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 3l5 5-5 5"/></svg></button>
   <button class="addbtn" id="addBtn" aria-label="예약하기" title="예약하기"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="14" height="13.5" rx="3" stroke-width="1.9"/><path d="M2.5 8.8h14M6.5 2.8v3.4M12.5 2.8v3.4" stroke-width="1.9"/><path d="M19 15v7M15.5 18.5h7" stroke="#ff5a7a" stroke-width="6.5"/><path d="M19 15.2v6.6M15.7 18.5h6.6" stroke-width="2.3"/></svg></button>
 
   <!-- 예약을 눌렀을 때: 메인 화면과 똑같은 예약 카드 + 버튼 2개 / 삭제하기 → 창이 늘어나며 확인 모드 -->
@@ -1392,6 +1403,7 @@
   // 동기화 알림: 시각 자리에 "동기화 완료" 글자를 잠깐 보여 줌
   var SYNC_MS = 2600;
   function syncFlash(msg) {
+    updateStatus(); return;                     // 초록 "동기화 완료"는 안 띄움 (시각 옆 체크로 충분)
     state.syncMsg = msg;
     state.syncUntil = Date.now() + SYNC_MS;
     updateStatus();
@@ -1401,8 +1413,8 @@
 
   function statusText() {
     if (state.err) return "동기화 실패.";
-    if (state.loading) return state.lastLoad ? "동기화 중…" : "불러오는 중…";
-    return state.lastLoad ? "업데이트: " + hhmm(state.lastLoad) : "";
+    if (state.loading) return state.lastLoad ? "" : "불러오는 중…";
+    return state.lastLoad ? "동기화 - " + hhmm(state.lastLoad) : "";
   }
   function updateStatus() {
     var rb = document.querySelector('[data-act="refresh"]');
@@ -1418,11 +1430,15 @@
       return;
     }
     el.removeAttribute("data-sync");
-    el.textContent = statusText();
+    // 받는 중: 점 세 개가 하나씩 통통 / 끝: [체크] 동기화 - 06:00 (회색)
+    if (!state.err && state.loading && state.lastLoad) el.innerHTML = '<span class="dots"><i></i><i></i><i></i></span>';
+    else if (!state.err && !state.loading && state.lastLoad) el.innerHTML = ICON_OK + "<span>" + esc(statusText()) + "</span>";
+    else el.textContent = statusText();
     el.className = "status" + (state.err ? " err" : state.loading ? " syncing" : "");
     fixDigits(el.parentNode);
   }
 
+  var ICON_OK = '<svg class="ok" viewBox="0 0 24 24" width="12" height="12" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   var ICON_PREV = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg>';
   var ICON_NEXT = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>';
   var ICON_NEXT_S = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 5l7 7-7 7"/></svg>';
@@ -1915,16 +1931,16 @@
     var live = b.come <= tk && b.go >= tk && !b.delPending && !wait;
     if (b.delPending) st = '<span class="dwait"><i></i>삭제 대기중</span>';
     else if (wait) st = '<span class="dwait up"><i></i>' + (b.pend ? "등록" : "수정") + " 대기중</span>";
+    var soon = b.come > tk && !b.delPending && !wait && state.mode !== "all";   // 앞으로 올 일정 (전체 예약 목록에서는 효과 없음)
     var liveStyle = live ? ";--d:" + (-(Date.now() % (mix ? 5000 : 2600))) + "ms" : "";
-    if (b.come > tk && !b.delPending && !wait) {                     // 앞으로 올 일정: 색마다 다른 그라데이션 선 (다시 그려도 돌던 자리에서 이어서)
+    if (soon) {                     // 앞으로 올 일정: 색마다 다른 그라데이션 선 (다시 그려도 돌던 자리에서 이어서)
       var g = SOON_GRAD[colorNo(b) - 1] || SOON_GRAD[0];
       liveStyle += ";--g1:" + g[0] + ";--g2:" + g[1] + ";--g3:" + g[2] + ";--rd:" + (-(Date.now() % SOON_MS)) + "ms";
     }
     // 테두리 빛(빙글빙글): 오늘 머무는 카드 + 달력에서 고른 날에 걸친 카드 (고른 날 목록은 모두 그날 일정)
-    var soon = b.come > tk && !b.delPending && !wait;                // 앞으로 올 일정
     var spin = live;                                                 // 혜성 테두리 빛: 진행 중인 일정만 (앞으로 올 일정은 .soon 그라데이션 선)
     var ring = (spin ? '<svg class="ring" aria-hidden="true">' + RING_TAIL.map(function () { return "<path/>"; }).join("") + "</svg>" : "") + (mix ? LN_MIX : "");
-    return '<div class="bk' + (mix ? " mix" : "") + (done ? " done" : "") + (live ? " live" : "") + (soon ? " soon" : "") + (b.pend || b.editPending ? " pend" : "") + (b.delPending ? " delwait" : "") + '" data-bk="' + b.id + '" style="--c:' + c[0] + ";--fg:" + c[2] + ";--tint:" + c[3] + ";--pill:" + c[4] + liveStyle + '">' +
+    return '<div class="bk' + (mix ? " mix" : "") + (done ? " done" : "") + (live ? " live" : "") + (soon ? " soon" : "") + (b.pend || b.editPending ? " pend" : "") + (b.pend ? " reg" : "") + (b.delPending ? " delwait" : "") + '" data-bk="' + b.id + '" style="--c:' + c[0] + ";--fg:" + c[2] + ";--tint:" + c[3] + ";--pill:" + c[4] + liveStyle + '">' +
       '<div class="bk-top"><div class="bk-name">' + esc(b.text) + "</div>" + st + "</div>" +
       '<div class="bk-dates">' +
         '<div class="lab">오는 날</div><div class="lab go">가는 날</div>' +
@@ -2417,9 +2433,9 @@
   function pastMsg(ed) { return ed.mode === "edit" ? "지난 날짜로는 바꿀 수 없어요" : "지난 날짜는 예약할 수 없어요"; }
   function datesOk(ed, come, go) { return pastOk(ed, come, "come") && pastOk(ed, go, "go"); }
 
-  // 제목: "예약하기" / "예약 수정: 일정명" (일정명은 옅은 회색 · 길면 … 으로)
+  // 제목: "예약하기" / "{일정명} 예약 수정 중" (일정명은 진한 분홍 · 길면 … 으로)
   function setEdTitle(name) {
-    $("edTitle").innerHTML = name == null ? "예약하기" : '<span class="ttm">예약 수정</span><span class="ttn">: ' + esc(name) + "</span>";
+    $("edTitle").innerHTML = name == null ? "예약하기" : '<span class="ttn">' + esc(name) + '</span><span class="ttm">예약 수정 중</span>';
   }
   // 수정: 처음 열었을 때와 하나도 다르지 않으면 저장 버튼을 누를 수 없게
   function updSave() {
@@ -2823,8 +2839,12 @@
     try { localStorage.setItem(POS_KEY, String(n)); } catch (e) {}
     applyPos();
   }
-  $("mvL").onclick = function () { movePos(-1); };
-  $("mvR").onclick = function () { movePos(1); };
+  function mvTap(el, d) {
+    el.classList.add("tap"); setTimeout(function () { el.classList.remove("tap"); }, 180);
+    el.blur(); movePos(d);
+  }
+  $("mvL").onclick = function () { mvTap(this, -1); };
+  $("mvR").onclick = function () { mvTap(this, 1); };
   window.addEventListener("resize", applyPos);
   applyPos();
   // 빈 곳(앱 바깥)을 옆으로 쓸면 그쪽으로 옮김
@@ -3005,7 +3025,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.26b";
+  var APP_VERSION = "2026.11.26c";
   var UPD_NOTE = "끝난 일정도 달력에서 볼 수 있어요";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }

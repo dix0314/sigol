@@ -622,7 +622,7 @@
   .pop .actions button { height: 48px; }
   #sheetbg .sheet { padding-top: calc(var(--sh-pad) + .6px); }        /* 예약 정보 창은 X 버튼 줄 때문에 제목이 .28px 아래 → 같은 높이로 맞춤 */
   #sheetbg .actions { margin-top: var(--sh-btn); }                          /* 예약 정보 창과 같은 간격 (:root --sh-btn) */
-  #sheetbg h3 + .flab { margin-top: 6px; }
+  #sheetbg h3 + .flab { margin-top: 10px; }                                /* 제목 ↔ 누가 오나요? 여백 */
   #sheetbg h3 { font-size: 19px; }                                         /* 예약하기 · 예약 수정 제목: 조금 작게 */
   #sheetbg h3::before { top: .5px; bottom: 3.5px; }                             /* 막대 = 글자 위아래와 같은 높이 → 글자가 막대 가운데 (재서 맞춤) */
   #sheetbg .actions button { height: 48px; font-size: 16px; }                 /* 취소 · 저장 = 삭제하기 · 수정하기와 같은 크기 */
@@ -3021,7 +3021,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.26f";
+  var APP_VERSION = "2026.11.26g";
   var UPD_NOTE = "캘린더 와이드 대응 및 UI 강화";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }

@@ -99,11 +99,11 @@
   html.wide .mvh {
     position: fixed; z-index: 20; top: 50%; width: 48px; height: 140px; margin-top: -70px; padding: 0; border: 0; background: none;
     display: flex; align-items: center; justify-content: center; gap: 5px; color: #c9bfc6; cursor: pointer; outline: none;
-    transition: left .42s cubic-bezier(.2, .8, .2, 1), opacity .25s; -webkit-tap-highlight-color: transparent;
+    translate: var(--shift, 0px) 0; transition: translate .42s cubic-bezier(.2, .8, .2, 1), opacity .25s; -webkit-tap-highlight-color: transparent;   /* left 대신 translate 로 움직여야 떨리지 않음 */
   }
   html.wide .mvh.l { flex-direction: row-reverse; }                         /* 막대는 앱 쪽, 아이콘은 바깥쪽 */
-  html.wide .mvh.l { left: calc(50% + var(--shift, 0px) - var(--maxw) / 2 - 56px); }
-  html.wide .mvh.r { left: calc(50% + var(--shift, 0px) + var(--maxw) / 2 + 8px); }
+  html.wide .mvh.l { left: calc(50% - var(--maxw) / 2 - 56px); }
+  html.wide .mvh.r { left: calc(50% + var(--maxw) / 2 + 8px); }
   .mvh .grip { flex: none; width: 5px; height: 56px; border-radius: 3px; background: #ddd3d9; transition: background .2s, height .2s; }
   .mvh svg { flex: none; display: block; animation: mvNudge 1.6s ease-in-out infinite; }
   .mvh.l svg { --dir: -1; }
@@ -297,6 +297,7 @@
     box-shadow: inset 0 0 0 1px rgba(40, 30, 60, .06);
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 22%, transparent);
   }
+  .bar > span { top: -.5px; }                                              /* 이름 칸만 살짝 위로 (폰 화면에서 재서 맞춤 · 안쪽 흐르는 글자는 같이 움직임) */
   .bar .mqm { position: absolute; left: 0; top: 0; visibility: hidden; pointer-events: none; white-space: nowrap; font-style: normal; }
   .bar span { position: relative; overflow: hidden; text-overflow: ellipsis; min-width: 0; line-height: 1.35; }   /* 에스코어드림은 글자 위아래가 커서 줄 높이 여유 (잘림 방지) */
   .bar.l { border-top-left-radius: 0; border-bottom-left-radius: 0; padding-left: 5px; }   /* 지난주에서 이어짐: 띠 없음 */
@@ -338,7 +339,7 @@
   }
   .segb.on { background: var(--hot); color: #fff; }
   .segb[data-mode="all"] { padding-left: 14px; }                          /* 글자 왼쪽 빈 곳만큼 → 글자 + 칩이 좌우 가운데 */
-  .segb .cnt { position: relative; top: .5px; font: 700 12.5px/1 var(--font-body); padding: 4px 7.5px 4px 8.5px; border-radius: 999px; background: #fff; color: var(--hot); }
+  .segb .cnt { position: relative; top: .5px; font: 700 12.5px/1 var(--font-body); padding: 3.5px 7.5px 4.5px 8.5px; border-radius: 999px; background: #fff; color: var(--hot); }
   .segb:not(.on) .cnt { background: #fff; color: #6b6b78; box-shadow: inset 0 0 0 1px #dedee6; }   /* 테두리를 칩 안쪽에 → 칩이 오른쪽으로 1px 커 보이지 않게 */
 
   /* ---------- 예약 카드 ---------- */
@@ -396,9 +397,9 @@
   .bk .ring path { fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: butt; }
   .bk.mix .ring path { stroke: url(#ringmix); }
   .bk-top { display: flex; align-items: center; gap: 8px; }
-  .bk-name { flex: 1 1 auto; min-width: 0; position: relative; top: 1.5px; font: 700 13.5px/1.35 var(--font-title); color: #33333b; word-break: keep-all; overflow-wrap: anywhere; }
+  .bk-name { flex: 1 1 auto; min-width: 0; position: relative; top: .5px; font: 700 13.5px/1.35 var(--font-title); color: #33333b; word-break: keep-all; overflow-wrap: anywhere; }
   .nt { flex: 0 0 auto; font: 700 12px/1 var(--font-body); color: var(--rose); }
-  .st { flex: 0 0 auto; display: inline-flex; align-items: center; border-radius: 999px; padding: 5.75px 9px 3.75px; font: 700 11.5px/1 var(--font-body); background: #ffe3ea; color: #e0426a; }   /* 위아래: 재서 가운데로 맞춘 여백 */
+  .st { flex: 0 0 auto; display: inline-flex; align-items: center; border-radius: 999px; padding: 5px 9px 4.5px; font: 700 11.5px/1 var(--font-body); background: #ffe3ea; color: #e0426a; }   /* 위아래: 재서 가운데로 맞춘 여백 */
   .st.come { background: var(--hot); color: #fff; }
   .st.stay { background: #e3e3ea; color: #565662; }                       /* 머무는 중: 조금 더 짙게 */
   .st.go { background: #c2335d; color: #fff; }
@@ -454,11 +455,11 @@
   /* ---------- 아래 큰 버튼 ---------- */
   /* 예약하기: 오른쪽 아래 동그란 버튼 (달력 + 더하기 아이콘) — 넓은 화면에선 앱(달력) 오른쪽 끝을 따라 같이 움직임 */
   .addbtn {
-    position: fixed; z-index: 30; right: max(18px, calc((100vw - var(--maxw)) / 2 + 18px - var(--shift, 0px))); bottom: calc(20px + env(safe-area-inset-bottom));
+    position: fixed; z-index: 30; right: max(18px, calc((100vw - var(--maxw)) / 2 + 18px)); translate: var(--shift, 0px) 0; bottom: calc(20px + env(safe-area-inset-bottom));
     width: 58px; height: 58px; padding: 0; border: 0; border-radius: 50%; background: var(--hot); color: #fff;
     display: flex; align-items: center; justify-content: center;
     box-shadow: 0 8px 18px -6px rgba(255, 90, 122, .65), 0 2px 5px rgba(196, 48, 79, .18);
-    transition: transform .15s, right .42s cubic-bezier(.2, .8, .2, 1); touch-action: manipulation;
+    transition: transform .15s, translate .42s cubic-bezier(.2, .8, .2, 1); touch-action: manipulation;
   }
   .addbtn:active { transform: scale(.93); }
 
@@ -510,7 +511,7 @@
   .flab .chip { height: 30px; padding: 0 12px; font-size: 13px; }
   .frow { display: flex; gap: 8px; margin-top: 4px; }
   .sheet input[type=text], .frow input {
-    width: 100%; min-width: 0; height: 46px; padding: 0 13px; border: 1px solid #dedee6; border-radius: 12px; outline: none;
+    width: 100%; min-width: 0; height: 46px; padding: 0 13px 1px; border: 1px solid #dedee6; border-radius: 12px; outline: none;
     background: #fff; color: var(--ink); font: 700 16px var(--font-body);
   }
   .frow input { flex: 1; font-family: var(--font-num); }
@@ -543,7 +544,7 @@
   .pk-go { flex: 1 1 0; min-width: 0; display: flex; border-radius: 14px; background: var(--grey); }
   .pk-arrow { flex: 0 0 22px; display: flex; align-items: center; justify-content: center; color: #c9c9d1; }
   .pk-f {
-    position: relative; flex: 1 1 0; min-width: 0; height: 62px; padding: 1.5px 4px 0; border: 0; border-radius: 14px; background: transparent; color: var(--ink);
+    position: relative; flex: 1 1 0; min-width: 0; height: 62px; padding: .5px 4px 0; border: 0; border-radius: 14px; background: transparent; color: var(--ink);
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; transition: background .15s, box-shadow .15s;
   }
   .pk-pair .pk-f + .pk-f::before { content: ''; position: absolute; left: 0; top: 14px; bottom: 14px; width: 1px; background: #dcdce3; }
@@ -623,7 +624,7 @@
   #sheetbg .actions { margin-top: var(--sh-btn); }                          /* 예약 정보 창과 같은 간격 (:root --sh-btn) */
   #sheetbg h3 + .flab { margin-top: 6px; }
   #sheetbg h3 { font-size: 19px; }                                         /* 예약하기 · 예약 수정 제목: 조금 작게 */
-  #sheetbg h3::before { top: 0; bottom: 4px; }                             /* 막대 = 글자 위아래와 같은 높이 → 글자가 막대 가운데 (재서 맞춤) */
+  #sheetbg h3::before { top: .5px; bottom: 3.5px; }                             /* 막대 = 글자 위아래와 같은 높이 → 글자가 막대 가운데 (재서 맞춤) */
   #sheetbg .actions button { height: 48px; font-size: 16px; }                 /* 취소 · 저장 = 삭제하기 · 수정하기와 같은 크기 */
   .popbg[data-k="date"] #popTime, .popbg[data-k="time"] #popDate, .popbg[data-k="date"] #edNoTime { display: none; }
   .popbg[data-k="time"] .pop-tag { display: none; }
@@ -723,7 +724,7 @@
   .sw:disabled { cursor: default; }
   .sw:disabled svg { opacity: .18; filter: grayscale(1); transform: scale(.78); }
   .actions { display: flex; gap: 8px; margin-top: 16px; }
-  .actions button { flex: 1; height: 50px; border: 0; border-radius: 14px; font: 700 17px var(--font-body); }
+  .actions button { flex: 1; height: 50px; padding: 0 0 1px; border: 0; border-radius: 14px; font: 700 17px var(--font-body); }   /* 아래 1px: 글자가 살짝 아래로 보여서 (폰 화면에서 재서 맞춤) */
   .b-save { background: var(--hot); color: #fff; }
   .b-cancel { background: var(--grey); color: var(--ink); }
   .b-del { flex: 0 0 auto !important; padding: 0 18px; background: #fff; color: var(--rose); box-shadow: inset 0 0 0 1.5px var(--rose); }
@@ -2815,7 +2816,7 @@
   function appShift() {
     var root = document.documentElement, mw = parseFloat(getComputedStyle(root).getPropertyValue("--maxw")) || 470;
     var vw = root.clientWidth;
-    return vw >= WIDE_MIN ? appPos * Math.max(0, (vw - mw) / 2 - 8) : 0;    // 화면 끝에서 8px 띄움
+    return vw >= WIDE_MIN ? Math.round(appPos * Math.max(0, (vw - mw) / 2 - 8)) : 0;    // 화면 끝에서 8px 띄움 (정수 px → 글자가 흐려지거나 떨리지 않게)
   }
   function applyPos() {
     var root = document.documentElement, wide = root.clientWidth >= WIDE_MIN;
@@ -3020,8 +3021,8 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.26e";
-  var UPD_NOTE = "끝난 일정도 달력에서 볼 수 있어요";
+  var APP_VERSION = "2026.11.26f";
+  var UPD_NOTE = "캘린더 와이드 대응 및 UI 강화";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }

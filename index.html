@@ -94,15 +94,15 @@
   main { transition: translate .42s cubic-bezier(.2, .8, .2, 1); }
   html.wide, html.wide body { touch-action: pan-y; }                        /* 빈 곳을 옆으로 쓸 때 브라우저가 가로채지 않게 */
   .mvh { display: none; }
-  /* 손잡이: 앱 가장자리 옆 얇은 세로 막대(갤럭시 멀티 윈도우 손잡이 느낌) + 바깥쪽 작은 화살표가 그쪽으로 톡톡 밀려 나감
+  /* 손잡이: 앱 가장자리 옆 얇은 세로 막대(갤럭시 멀티 윈도우 손잡이 느낌) + "창 옮기기" 아이콘(작은 폰 화면 + 옆으로 가는 화살표)이 그쪽으로 톡톡
      · 누르는 자리는 넓게(44 × 140) 잡고, 보이는 건 막대와 화살표만 · 누른 색이 남지 않게 hover 는 마우스에서만 */
   html.wide .mvh {
-    position: fixed; z-index: 20; top: 50%; width: 44px; height: 140px; margin-top: -70px; padding: 0; border: 0; background: none;
+    position: fixed; z-index: 20; top: 50%; width: 48px; height: 140px; margin-top: -70px; padding: 0; border: 0; background: none;
     display: flex; align-items: center; justify-content: center; gap: 5px; color: #c9bfc6; cursor: pointer; outline: none;
     transition: left .42s cubic-bezier(.2, .8, .2, 1), opacity .25s; -webkit-tap-highlight-color: transparent;
   }
-  html.wide .mvh.r { flex-direction: row-reverse; }
-  html.wide .mvh.l { left: calc(50% + var(--shift, 0px) - var(--maxw) / 2 - 52px); }
+  html.wide .mvh.l { flex-direction: row-reverse; }                         /* 막대는 앱 쪽, 아이콘은 바깥쪽 */
+  html.wide .mvh.l { left: calc(50% + var(--shift, 0px) - var(--maxw) / 2 - 56px); }
   html.wide .mvh.r { left: calc(50% + var(--shift, 0px) + var(--maxw) / 2 + 8px); }
   .mvh .grip { flex: none; width: 5px; height: 56px; border-radius: 3px; background: #ddd3d9; transition: background .2s, height .2s; }
   .mvh svg { flex: none; display: block; animation: mvNudge 1.6s ease-in-out infinite; }
@@ -168,7 +168,7 @@
   .status { display: inline-flex; align-items: center; gap: 4px; }
   .status .ok { flex: none; color: #b5b5bf; position: relative; top: -.5px; }
   .status .dots { display: inline-flex; align-items: center; gap: 4px; height: 14px; padding: 0 2px; }
-  .status .dots i { width: 5px; height: 5px; border-radius: 50%; background: var(--hot); animation: dotHop 1s ease-in-out infinite; }
+  .status .dots i { width: 5px; height: 5px; border-radius: 50%; background: #e0426a; animation: dotHop 1s ease-in-out infinite; }
   .status .dots i:nth-child(2) { animation-delay: .15s; }
   .status .dots i:nth-child(3) { animation-delay: .3s; }
   @keyframes dotHop { 0%, 60%, 100% { transform: none; opacity: .5; } 30% { transform: translateY(-4px); opacity: 1; } }
@@ -395,17 +395,6 @@
   .bk .ring { position: absolute; left: 0; top: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; z-index: 3; }
   .bk .ring path { fill: none; stroke: var(--c); stroke-width: 2; stroke-linecap: butt; }
   .bk.mix .ring path { stroke: url(#ringmix); }
-  /* 앞으로 올 일정: 닌텐도 스위치 2 고른 버튼처럼 — 카드 둘레에 옅은 선 + 그 위를 빛나는 선이 천천히 빙글빙글 */
-  @property --ra { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
-  .bk.soon::after {
-    content: ''; position: absolute; inset: 0; z-index: 0; border-radius: inherit; padding: 2px; pointer-events: none;   /* 왼쪽 색 띠(z 1) 밑으로 */
-    background: conic-gradient(from var(--ra), var(--g1), var(--g2), var(--g3), var(--g2), var(--g1));
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
-    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-    animation: soonRot 4s linear infinite; animation-delay: var(--rd, 0ms);
-  }
-  @keyframes soonRot { to { --ra: 360deg; } }
-  @media (prefers-reduced-motion: reduce) { .bk.soon::after { animation: none; } }
   .bk-top { display: flex; align-items: center; gap: 8px; }
   .bk-name { flex: 1 1 auto; min-width: 0; position: relative; top: 1px; font: 700 13px/1.35 var(--font-title); color: #33333b; word-break: keep-all; overflow-wrap: anywhere; }
   .nt { flex: 0 0 auto; font: 700 12px/1 var(--font-body); color: var(--rose); }
@@ -528,6 +517,22 @@
   .frow input[type=text] { font-family: var(--font-body); }
   .frow input:disabled { background: var(--grey); color: #c4c4cc; }
   .sheet input:focus { border-color: var(--hot); }
+  /* 예약하기 · 예약 수정: 누른 칸(이름 칸 · 오는 날 · 오는 시간 · 가는 날)에 닌텐도 스위치 2 고른 버튼처럼
+     분홍 → 연분홍 → 라벤더 그라데이션 테두리가 빙글빙글 돎 */
+  @property --ra { syntax: '<angle>'; inherits: false; initial-value: 0deg; }
+  #sheetbg .frow { position: relative; }
+  #sheetbg .frow input:focus { border-color: transparent; }
+  #sheetbg .frow:focus-within::after, .pk-f.on::after {
+    content: ''; position: absolute; inset: 0; border-radius: 12px; padding: 2px; pointer-events: none;
+    background: conic-gradient(from var(--ra), var(--g1, #ff5a7a), var(--g2, #ffb8cb), var(--g3, #c08bff), var(--g2, #ffb8cb), var(--g1, #ff5a7a));
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0); -webkit-mask-composite: xor;
+    mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+    animation: sw2Rot 3s linear infinite;
+  }
+  .pk-f.on::after { border-radius: 14px; }
+  .pk-f[data-pf="go"].on { --g1: #c2335d; --g2: #ff9ab6; --g3: #a87bf0; }   /* 가는 날: 조금 더 진한 분홍 */
+  @keyframes sw2Rot { to { --ra: 360deg; } }
+  @media (prefers-reduced-motion: reduce) { #sheetbg .frow:focus-within::after, .pk-f.on::after { animation: none; } }
   .chips { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px; margin-top: 6px; }
 
   /* ---------- 날짜 · 시간 고르기 (예약하기 창) ---------- */
@@ -550,10 +555,9 @@
   .pk-f .pk-v.tm { color: #e0426a; }
   .pk-f .pk-v.none { color: #b0b0ba; }
   .pk-f:active { background: rgba(40, 30, 60, .04); }
-  .pk-f.on { background: #fff; box-shadow: inset 0 0 0 1.5px var(--hot); }
+  .pk-f.on { background: #fff; }
   .pk-f.on::before, .pk-f.on + .pk-f::before { opacity: 0; }
   .pk-f.on .pk-l { color: var(--hot); }
-  .pk-f[data-pf="go"].on { box-shadow: inset 0 0 0 1.5px #c2335d; }
   .pk-f[data-pf="go"].on .pk-l { color: #c2335d; }
   /* 1박~5박: 옆으로 넓적한 "밀어서 잠금 해제" 느낌의 바
      · 옅은 회색 알약 홈(안으로 살짝 파임) 안에 1박 ~ 5박 글자가 고르게
@@ -615,9 +619,11 @@
   #edNoTime.sel svg { opacity: 1; }
   .pop .actions { margin-top: 14px; }
   .pop .actions button { height: 48px; }
-  #sheetbg .sheet { padding-top: calc(var(--sh-pad) + .28px); }        /* 예약 정보 창은 X 버튼 줄 때문에 제목이 .28px 아래 → 같은 높이로 맞춤 */
+  #sheetbg .sheet { padding-top: calc(var(--sh-pad) + .6px); }        /* 예약 정보 창은 X 버튼 줄 때문에 제목이 .28px 아래 → 같은 높이로 맞춤 */
   #sheetbg .actions { margin-top: var(--sh-btn); }                          /* 예약 정보 창과 같은 간격 (:root --sh-btn) */
   #sheetbg h3 + .flab { margin-top: 6px; }
+  #sheetbg h3 { font-size: 19px; }                                         /* 예약하기 · 예약 수정 제목: 조금 작게 */
+  #sheetbg h3::before { top: 0; bottom: 4px; }                             /* 막대 = 글자 위아래와 같은 높이 → 글자가 막대 가운데 (재서 맞춤) */
   #sheetbg .actions button { height: 48px; font-size: 16px; }                 /* 취소 · 저장 = 삭제하기 · 수정하기와 같은 크기 */
   .popbg[data-k="date"] #popTime, .popbg[data-k="time"] #popDate, .popbg[data-k="date"] #edNoTime { display: none; }
   .popbg[data-k="time"] .pop-tag { display: none; }
@@ -950,8 +956,8 @@
   <div id="arrow" hidden><svg viewBox="0 0 56 70" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"><path d="M28 6v54M8 40l20 20 20-20"/></svg></div>
   <main id="main"><div class="loading">불러오는 중…</div></main>
   <!-- 넓은 화면: 앱 옆 빈 곳의 손잡이 (누르면 앱이 그쪽으로 옮겨감) -->
-  <button class="mvh l" id="mvL" aria-label="앱을 왼쪽으로"><span class="grip"></span><svg viewBox="0 0 12 16" width="12" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 3L3.5 8l5 5"/></svg></button>
-  <button class="mvh r" id="mvR" aria-label="앱을 오른쪽으로"><span class="grip"></span><svg viewBox="0 0 12 16" width="12" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 3l5 5-5 5"/></svg></button>
+  <button class="mvh l" id="mvL" aria-label="앱을 왼쪽으로"><span class="grip"></span><svg viewBox="0 0 22 18" width="22" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="12" y="2" width="8.5" height="14" rx="2.2"/><path d="M15.5 13.2h1.5"/><path d="M9 9H1.8M4.6 6.2L1.8 9l2.8 2.8"/></svg></button>
+  <button class="mvh r" id="mvR" aria-label="앱을 오른쪽으로"><span class="grip"></span><svg viewBox="0 0 22 18" width="22" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="2" width="8.5" height="14" rx="2.2"/><path d="M5 13.2h1.5"/><path d="M13 9h7.2M17.4 6.2L20.2 9l-2.8 2.8"/></svg></button>
   <button class="addbtn" id="addBtn" aria-label="예약하기" title="예약하기"><svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="4.5" width="14" height="13.5" rx="3" stroke-width="1.9"/><path d="M2.5 8.8h14M6.5 2.8v3.4M12.5 2.8v3.4" stroke-width="1.9"/><path d="M19 15v7M15.5 18.5h7" stroke="#ff5a7a" stroke-width="6.5"/><path d="M19 15.2v6.6M15.7 18.5h6.6" stroke-width="2.3"/></svg></button>
 
   <!-- 예약을 눌렀을 때: 메인 화면과 똑같은 예약 카드 + 버튼 2개 / 삭제하기 → 창이 늘어나며 확인 모드 -->
@@ -1215,16 +1221,6 @@
     ["#b46ad6", "#efe0fb", "#7a3f9e", "#f6eefd", "#ecdcfc"]
   ];
   var MIX = 6;   // 단체 색 번호
-  // 앞으로 올 일정 테두리 그라데이션 (닌텐도 스위치 2 고른 버튼 느낌): 일정 색 → 밝은 색 → 이웃 색
-  var SOON_GRAD = [
-    ["#ff5a7a", "#ffb8cb", "#c08bff"],   // 1 분홍
-    ["#f2905f", "#ffd59a", "#ff7f9e"],   // 2 주황
-    ["#e6c229", "#fff0a0", "#f5a24a"],   // 3 노랑
-    ["#1fb894", "#9ff0da", "#4aaef0"],   // 4 민트
-    ["#3d7fe0", "#a9d4ff", "#c48bf2"],   // 5 파랑 (보내 준 예시와 비슷)
-    ["#ff86a3", "#b98cf0", "#6fcfb6"]    // 6 단체
-  ];
-  var SOON_MS = 4000;                    // 한 바퀴 시간
 
   // sel: 고른 날짜 / mode: "day" (고른 날) | "all" (전체)
   // 열 때마다 항상 처음 화면 (이번 달 · 오늘 · 고른 날 목록) 으로 시작 — 마지막에 본 화면은 저장하지 않음
@@ -1931,16 +1927,11 @@
     var live = b.come <= tk && b.go >= tk && !b.delPending && !wait;
     if (b.delPending) st = '<span class="dwait"><i></i>삭제 대기중</span>';
     else if (wait) st = '<span class="dwait up"><i></i>' + (b.pend ? "등록" : "수정") + " 대기중</span>";
-    var soon = b.come > tk && !b.delPending && !wait && state.mode !== "all";   // 앞으로 올 일정 (전체 예약 목록에서는 효과 없음)
     var liveStyle = live ? ";--d:" + (-(Date.now() % (mix ? 5000 : 2600))) + "ms" : "";
-    if (soon) {                     // 앞으로 올 일정: 색마다 다른 그라데이션 선 (다시 그려도 돌던 자리에서 이어서)
-      var g = SOON_GRAD[colorNo(b) - 1] || SOON_GRAD[0];
-      liveStyle += ";--g1:" + g[0] + ";--g2:" + g[1] + ";--g3:" + g[2] + ";--rd:" + (-(Date.now() % SOON_MS)) + "ms";
-    }
     // 테두리 빛(빙글빙글): 오늘 머무는 카드 + 달력에서 고른 날에 걸친 카드 (고른 날 목록은 모두 그날 일정)
-    var spin = live;                                                 // 혜성 테두리 빛: 진행 중인 일정만 (앞으로 올 일정은 .soon 그라데이션 선)
+    var spin = live;                                                 // 혜성 테두리 빛: 진행 중인 일정만
     var ring = (spin ? '<svg class="ring" aria-hidden="true">' + RING_TAIL.map(function () { return "<path/>"; }).join("") + "</svg>" : "") + (mix ? LN_MIX : "");
-    return '<div class="bk' + (mix ? " mix" : "") + (done ? " done" : "") + (live ? " live" : "") + (soon ? " soon" : "") + (b.pend || b.editPending ? " pend" : "") + (b.pend ? " reg" : "") + (b.delPending ? " delwait" : "") + '" data-bk="' + b.id + '" style="--c:' + c[0] + ";--fg:" + c[2] + ";--tint:" + c[3] + ";--pill:" + c[4] + liveStyle + '">' +
+    return '<div class="bk' + (mix ? " mix" : "") + (done ? " done" : "") + (live ? " live" : "") + (b.pend || b.editPending ? " pend" : "") + (b.pend ? " reg" : "") + (b.delPending ? " delwait" : "") + '" data-bk="' + b.id + '" style="--c:' + c[0] + ";--fg:" + c[2] + ";--tint:" + c[3] + ";--pill:" + c[4] + liveStyle + '">' +
       '<div class="bk-top"><div class="bk-name">' + esc(b.text) + "</div>" + st + "</div>" +
       '<div class="bk-dates">' +
         '<div class="lab">오는 날</div><div class="lab go">가는 날</div>' +
@@ -3025,7 +3016,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.26c";
+  var APP_VERSION = "2026.11.26d";
   var UPD_NOTE = "끝난 일정도 달력에서 볼 수 있어요";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null, reloadOnTap = false;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }

@@ -5,7 +5,7 @@
 //  · ★ 앱을 고칠 때마다 아래 CACHE 숫자를 하나 올려 주세요 (v4 → v5 …)
 //      → 쓰는 사람 폰이 새 버전을 통째로 다시 받고, 업데이트 창이 뜸 (예약을 적는 중이면 다 끝난 뒤에)
 //  · 첫 화면 주소("./")는 따로 받지 않음: 페이지를 열 때는 늘 index.html 저장본을 씀 (같은 파일을 두 번 받지 않게)
-var CACHE = "pension-app-v44", FONTS = "pension-fonts-v1";
+var CACHE = "pension-app-v46", FONTS = "pension-fonts-v1";
 var FILES = ["./index.html", "./manifest.json", "./icon-192.png", "./icon-512.png",
   "./icon-maskable-512.png", "./apple-touch-icon.png", "./favicon.png",
   "./SebangGothic2-Regular.woff2", "./SebangGothic2-Bold.woff2"];
@@ -39,7 +39,8 @@ self.addEventListener("fetch", function (e) {
   var key = req.mode === "navigate" ? "./index.html" : req;
   e.respondWith(caches.open(CACHE).then(function (c) {
     return c.match(key, { ignoreSearch: true }).then(function (hit) {
-      var net = fetch(req).then(function (res) { if (res.ok) c.put(key, res.clone()); return res; });
+      // cache: "no-cache" → 브라우저에 남은 예전 파일(최대 10분)이 아니라 GitHub 에 새로 물어봄 (예전 파일로 덮어쓰지 않게)
+      var net = fetch(new Request(req, { cache: "no-cache" })).then(function (res) { if (res.ok) c.put(key, res.clone()); return res; });
       if (hit) { e.waitUntil(net.catch(function () {})); return hit; }   // 저장본 바로 + 뒤에서 새로 받기
       return net.catch(function () { return Response.error(); });        // 오프라인 + 저장본 없음
     });

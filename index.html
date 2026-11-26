@@ -205,7 +205,7 @@
   .cn-tab { height: auto; padding: 0; gap: 0; white-space: nowrap; flex: none; }
   /* 2026. 11 칸: 왼쪽에 처음부터 있던 분홍 막대 + 오른쪽 구분선 (색은 영주 할매 칸과 같음) */
   .cn-tab { --tab: #ffd4df; background: #ffd4df; }                           /* 탭 바탕: 분홍 (한 단계 더 짙게) */
-  .cn-tab .ymw { position: relative; display: block; padding: 11px 0 13px 12px; }   /* 글자가 탭 보이는 부분 위아래 가운데 (재서 맞춤) */
+  .cn-tab .ymw { position: relative; display: block; padding: 11px 12px 13px 12px; }   /* 오른쪽 12px = 나무 왼쪽 여백(.nm 12px)과 같게 */   /* 글자가 탭 보이는 부분 위아래 가운데 (재서 맞춤) */
   .cn-tab .nm { position: relative; display: inline-flex; align-items: center; gap: 5px; padding: 0 11px 0 12px; font-size: 14px; }
   .cn-tab .ymw::before { content: ''; position: absolute; left: 0; top: 10.5px; bottom: 10.5px; width: 1.5px; border-radius: 1px; background: #dba3b4; }   /* 영주 할매 │ 2026. 11 구분선 (탭 높이 거의 전체) */   /* 영주 할매 │ 2026. 11 구분선 */
   .cn-tab .ym { overflow: visible; }
@@ -1607,7 +1607,7 @@
   //             글자 안 획들은 길이만큼 시간을 나눠 차례로 (긴 0 은 빠르게, 짧은 1 은 천천히)
   function heroDateSvg(txt, o) {
     var col = HD_COL[o.red ? "red" : "mag"], sid = "hd" + (hdSeq++);
-    var x = 1, h = "", n = 0, delay = o.d0 || 0, first = true, sp = o.speed || 1, seqK = 0;
+    var x = 1, h = "", n = 0, delay = o.d0 || 0, first = true, sp = o.speed || 1, seqK = 0, inkR = 0;   // inkR: 획이 실제로 칠해진 오른쪽 끝 (100칸 기준)
     txt.split("").forEach(function (ch, ci) {
       var h0 = h; h = "";                                    // o.groups: 글자마다 <g> 로 묶어서 따로 움직일 수 있게
       var an = !o.anim || o.anim[ci] !== false;              // 이 글자를 그을지
@@ -1635,6 +1635,7 @@
           gx = x + sl - lead; w = sl + (b[1] - b[0]) + HD_SW + sr + HD_LBASE;
         }
         else if (first) { gx = x - lead; w = w - lead; }                            // 숫자: 첫 글자만 왼쪽 여백 빼기
+        inkR = Math.max(inkR, gx + b[1] + HD_SW / 2);
       }
       first = false;
       if (strokes === "dot" || strokes === "mid") {
@@ -1670,7 +1671,7 @@
       (o.draw && !o.noT ? ' style="--t:' + (-o.t) + 'ms"' : "") + ' aria-label="' + esc(txt) + '" role="img">' +
       '<defs><filter id="' + sid + 's" filterUnits="userSpaceOnUse" x="-40" y="-40" width="200" height="180"><feDropShadow dx="-2.5" dy="2" stdDeviation="2.6" flood-color="#000" flood-opacity=".38"/></filter></defs>' +
       h + "</svg>";
-    return { svg: svg, d: delay };
+    return { svg: svg, d: delay, ink: inkR * H / 100 };   // ink: 글씨 오른쪽 끝(px)
   }
 
   // 위 제목 "2026. 11" 이 그어지는 중인지 + 어떤 글자를 그을지
@@ -1704,8 +1705,7 @@
     if (ymW[y]) return ymW[y];
     var w = 0;
     for (var m = 1; m <= 12; m++) {
-      var mm = heroDateSvg(y + ". " + pad(m), { h: YM_H }).svg.match(/width="([\d.]+)"/);
-      if (mm) w = Math.max(w, +mm[1]);
+      w = Math.max(w, heroDateSvg(y + ". " + pad(m), { h: YM_H }).ink);   // 글씨 뒤 빈 곳은 빼고 실제 획 끝까지
     }
     return (ymW[y] = Math.ceil(w));
   }
@@ -3252,7 +3252,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.27a";
+  var APP_VERSION = "2026.11.27b";
   var UPD_NOTE = "상단 탭 · 요일 줄 · 오늘 버튼 색감 개선";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }

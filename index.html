@@ -197,15 +197,15 @@
   /* 밑동 곡선: 탭 색 그대로 이어서 그림 (테두리 선도 곡선을 따라감) */
   .cn-tab::after {
     content: ''; position: absolute; left: 100%; bottom: 0; width: 13px; height: 12px; pointer-events: none;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='12'%3E%3ClinearGradient id='g' gradientUnits='userSpaceOnUse' x1='0' y1='1' x2='0' y2='12'%3E%3Cstop offset='0' stop-color='%23ffe6ed'/%3E%3Cstop offset='1' stop-color='%23ffe6ed'/%3E%3C/linearGradient%3E%3Cpath d='M0 0H.5A12 12 0 0 0 12.5 12H0Z' fill='url(%23g)'/%3E%3Cpath d='M.5 0A12 12 0 0 0 12.5 12' fill='none' stroke='%23efcfd8'/%3E%3C/svg%3E") no-repeat;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='12'%3E%3ClinearGradient id='g' gradientUnits='userSpaceOnUse' x1='0' y1='1' x2='0' y2='12'%3E%3Cstop offset='0' stop-color='%23ffd4df'/%3E%3Cstop offset='1' stop-color='%23ffd4df'/%3E%3C/linearGradient%3E%3Cpath d='M0 0H.5A12 12 0 0 0 12.5 12H0Z' fill='url(%23g)'/%3E%3Cpath d='M.5 0A12 12 0 0 0 12.5 12' fill='none' stroke='%23efcfd8'/%3E%3C/svg%3E") no-repeat;
   }
   .cal { position: relative; z-index: 1; background: #fff; }                  /* 달력 = 앞장 (탭 위에 겹침) */
   /* ---------- 위 탭 하나: [2026. 11 │ 🌳 영주 할매] + 오른쪽 [✓ 12:27] [새로고침] (예전 제목 줄을 없애 위 여백을 줄임) ---------- */
   .calnav { margin-top: 20px; }
   .cn-tab { height: auto; padding: 0; gap: 0; white-space: nowrap; flex: none; }
   /* 2026. 11 칸: 왼쪽에 처음부터 있던 분홍 막대 + 오른쪽 구분선 (색은 영주 할매 칸과 같음) */
-  .cn-tab { --tab: #ffe6ed; background: #ffe6ed; }                           /* 탭 바탕: 분홍 (한 단계 더 짙게) */
-  .cn-tab .ymw { position: relative; display: block; padding: 11px 13px 13px 12px; }   /* 글자가 탭 보이는 부분 위아래 가운데 (재서 맞춤) */
+  .cn-tab { --tab: #ffd4df; background: #ffd4df; }                           /* 탭 바탕: 분홍 (한 단계 더 짙게) */
+  .cn-tab .ymw { position: relative; display: block; padding: 11px 0 13px 12px; }   /* 글자가 탭 보이는 부분 위아래 가운데 (재서 맞춤) */
   .cn-tab .nm { position: relative; display: inline-flex; align-items: center; gap: 5px; padding: 0 11px 0 12px; font-size: 14px; }
   .cn-tab .ymw::before { content: ''; position: absolute; left: 0; top: 10.5px; bottom: 10.5px; width: 1.5px; border-radius: 1px; background: #dba3b4; }   /* 영주 할매 │ 2026. 11 구분선 (탭 높이 거의 전체) */   /* 영주 할매 │ 2026. 11 구분선 */
   .cn-tab .ym { overflow: visible; }
@@ -216,12 +216,12 @@
   .cbot { position: relative; z-index: 0; display: flex; align-items: flex-start; gap: 10px; margin-top: -1px; }
   .cb-today {
     position: relative; flex: none; display: inline-flex; align-items: center; gap: 5px; height: 35px; padding: 3px 14px 0 11px; border: 0; border-radius: 0 0 10px 10px;
-    background: #ffdfe7; color: var(--rose); border: 1px solid #efcfd8; border-top: 0; font: 400 14px/1 var(--font-title); -webkit-text-stroke: .35px currentColor; letter-spacing: .3px;
+    background: #ffd4df; color: var(--rose); border: 1px solid #efcfd8; border-top: 0; font: 400 14px/1 var(--font-title); -webkit-text-stroke: .35px currentColor; letter-spacing: .3px;
     /* 위 영주 할매 탭과 같은 색 (안쪽 그림자는 꺾인 곡선 부분과 색이 달라 보여서 뺌) */
     transition: opacity .2s, transform .25s cubic-bezier(.2, .8, .2, 1);
   }
-  .cb-today::after { content: ''; position: absolute; left: 100%; top: 0; width: 13px; height: 12px; transform: scaleY(-1); pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='12'%3E%3Cpath d='M0 0H.5A12 12 0 0 0 12.5 12H0Z' fill='%23ffdfe7'/%3E%3Cpath d='M.5 0A12 12 0 0 0 12.5 12' fill='none' stroke='%23efcfd8'/%3E%3C/svg%3E") no-repeat; }
-  .cb-today:active { background: #ffd0dc; }
+  .cb-today::after { content: ''; position: absolute; left: 100%; top: 0; width: 13px; height: 12px; transform: scaleY(-1); pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='12'%3E%3Cpath d='M0 0H.5A12 12 0 0 0 12.5 12H0Z' fill='%23ffd4df'/%3E%3Cpath d='M.5 0A12 12 0 0 0 12.5 12' fill='none' stroke='%23efcfd8'/%3E%3C/svg%3E") no-repeat; }
+  .cb-today:active { background: #ffc3d2; }
   /* 이번 달 · 오늘을 보고 있을 때: 숨기지 않고 옅은 회색 (누가 봐도 안 눌리는 모양) */
   .cb-today { transition: background .2s, color .2s, border-color .2s; }
   .cb-today.hid { background: #f4f4f6; color: #cfcfd6; border-color: #e7e7ec; pointer-events: none; }
@@ -283,6 +283,9 @@
   @keyframes calPrev { from { transform: translateX(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
   .cal-head { display: grid; grid-template-columns: repeat(7, 1fr); background: #ffeaef; }   /* 요일 줄 바탕: 은은한 핑크 */
   /* 요일 글꼴: "영주 할매" 탭과 같은 세방고딕 + 얇은 외곽선 */
+  .cal > .cal-head { background: linear-gradient(180deg, #fff4f7 0%, #ffe9ef 100%); box-shadow: inset 0 -1px 0 #f6d6df; }   /* 요일 줄: 위는 밝고 아래로 은은하게 진해지는 분홍 + 아래 얇은 선 */
+  .cal > .cal-head span { color: #4a3b45; }
+  .cal > .cal-head .sun { color: #e0264d; }
   .cal-head span { text-align: center; padding: 9px 0 8px; font: 400 14px/1.2 var(--font-title); -webkit-text-stroke: .35px currentColor; letter-spacing: .3px; color: #3a3a44; }
   .cal-head .sun { color: #e51440; }
   .wk { position: relative; display: grid; grid-template-columns: repeat(7, 1fr); border-top: 1px solid var(--line); }
@@ -3249,8 +3252,8 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.26y";
-  var UPD_NOTE = "캘린더 와이드 대응 및 UI 강화";
+  var APP_VERSION = "2026.11.27a";
+  var UPD_NOTE = "상단 탭 · 요일 줄 · 오늘 버튼 색감 개선";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }

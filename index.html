@@ -242,7 +242,7 @@
   .mline .ms:active:not(:disabled) .dot { transform: scale(1.3); }
   .mline .ms.on span { opacity: 1; }
   .mline .ms.on .dot { background: var(--yc); box-shadow: 0 0 0 4px color-mix(in srgb, var(--yc) 22%, transparent); transform: scale(1.3); }   /* 고른 달: 꽉 찬 점 + 은은한 같은 색 번짐 */
-  .mline .mk { position: absolute; z-index: 2; top: 0; left: 50%; margin-left: -5px; border: 5px solid transparent; border-top: 6px solid var(--hot); border-bottom: 0; animation: mkBob 1.4s ease-in-out infinite; }   /* ▼: 가운데 고정 · 위아래로 통통 (지하철 '현재 역' 표시처럼) */
+  .mline .mk { position: absolute; z-index: 2; top: 0; left: 50%; margin-left: -5px; border: 5px solid transparent; border-top: 6px solid var(--mkc, var(--hot)); border-bottom: 0; transition: border-color .2s; animation: mkBob 1.4s ease-in-out infinite; }   /* ▼: 가운데 고정 · 위아래로 통통 (지하철 '현재 역' 표시처럼) */
   @keyframes mkBob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(2.5px); } }
   @media (prefers-reduced-motion: reduce) { .mline .mk { animation: none; } }
   .mline .ms .dot, .mline .ms { transition: color .15s; }
@@ -1378,7 +1378,7 @@
     p = Math.max(minPage(), p);
     if (p === state.page || state.calBusy) return;
     // 바로 옆 달 (‹ › · 회색 날짜 누르기): 끌어서 넘길 때와 똑같이 옆으로 미끄러지며 넘어감 (제목도 같이)
-    if (Math.abs(p - state.page) === 1 && calVp()) { calGo(p - state.page, 0); return; }
+    if (calVp()) { calGo(p > state.page ? 1 : -1, 0, Math.abs(p - state.page)); return; }   // 여러 달도: 옆으로 미끄러지며 그 달로 (탁 바뀌지 않게)
     state.slide = p > state.page ? "next" : "prev";
     state.page = p;
     renderPage();
@@ -1901,7 +1901,7 @@
     h += "</div>";
     // 아래: [↩ 오늘 (달력 뒤에 꽂힌 짙은 탭 · 다른 달 · 다른 날을 볼 때만)]  [지하철 노선도처럼 달 줄]
     h += '<div class="cbot"><button class="cb-today' + (wantToday(state.page) ? "" : " hid") + '" data-today="1">' + ICON_BACK + "<span>오늘</span></button>" +
-      '<div class="mline"><b class="mk"></b><div class="mtrack">' + mlineHtml(state.page) + "</div></div></div>";
+      '<div class="mline" style="--mkc:' + mlCol(state.page, minPage()) + '"><b class="mk"></b><div class="mtrack">' + mlineHtml(state.page) + "</div></div></div>";
     return h;
   }
   function wantToday(pg) { return !!(pg || state.mode !== "day" || state.sel !== todayKey()); }
@@ -1927,7 +1927,7 @@
       var p = pg + i, off = p < mp, mo = monthOf(p), x = i * MS_GAP, c = mlCol(p, mp);
       if (i > -MS_N) {                                                 // 앞 역 → 이 역 선 (해가 바뀌는 칸은 두 색이 이어짐)
         var c0 = mlCol(p - 1, mp);
-        h += '<i class="ln" style="left:calc(50% + ' + (x - MS_GAP) + "px);width:" + MS_GAP + "px;background:" + (c0 === c ? c : "linear-gradient(90deg," + c0 + " 80%," + c + " 100%)") + '"></i>';
+        h += '<i class="ln" style="left:calc(50% + ' + (x - MS_GAP) + "px);width:" + MS_GAP + "px;background:" + (c0 === c ? c : "linear-gradient(90deg," + c0 + " 70%," + c + " 100%)") + '"></i>';
       }
       h += '<button class="ms' + (i === 0 ? " on" : "") + (p === 0 ? " now" : "") + (off ? " off" : "") + '" data-pg="' + p + '" data-i="' + i + '" style="--yc:' + c + ";left:calc(50% + " + (x - 27) + 'px)"' + (off || !i ? " disabled" : "") + ">" +
         '<i class="dot"></i><span>' + (mo.m === 1 ? pad(mo.y % 100) + "년 " : "") + mo.m + "월</span></button>";   // 1월에만 "27년 1월"
@@ -1941,7 +1941,11 @@
     tr.style.transition = anim ? "transform " + anim + "ms cubic-bezier(.2, .8, .2, 1)" : "none";
     tr.style.transform = off ? "translateX(" + off + "px)" : "";
     var k = Math.round(-off / MS_GAP);
-    tr.querySelectorAll(".ms").forEach(function (b) { b.classList.toggle("on", +b.getAttribute("data-i") === k); });
+    tr.querySelectorAll(".ms").forEach(function (b) {
+      var on = +b.getAttribute("data-i") === k;
+      b.classList.toggle("on", on);
+      if (on) tr.parentNode.style.setProperty("--mkc", b.style.getPropertyValue("--yc"));   // ▼ 색 = ▼ 밑 역의 색
+    });
   }
   // 한 달의 주 칸들 (주마다 한 줄, 여러 날 일정은 막대로 이어서)
   function weeksHtml(page, tk, cur) {
@@ -2142,7 +2146,7 @@
     }
     var sc = state.ymScrub;
     if (!sc || sc.dir !== dir) {
-      var tr = ymTr(ymText(state.page), ymText(state.page + dir));
+      var tr = ymTr(ymText(state.page), ymText(state.page + dir * (state.ymStep || 1)));
       sc = state.ymScrub = { dir: dir, D: tr.D };
       el.classList.add("scrub");
       el.innerHTML = tr.svg;
@@ -2176,9 +2180,20 @@
     m.querySelectorAll(".cday.sel").forEach(function (e) { e.classList.remove("sel"); });
     m.querySelectorAll('.cday[data-k="' + k + '"]').forEach(function (e) { e.classList.add("sel"); });
   }
-  function calGo(dir, p0) {
-    navToday(Math.max(minPage(), state.page + dir));
-    mlineShift(-dir * MS_GAP, CAL_MS);                               // 달 줄 역도 한 칸 같이 미끄러짐
+  function calGo(dir, p0, steps) {
+    steps = steps || 1;
+    if (steps > 1) {                                                  // 여러 달: 옆 칸에 그 달을 미리 그려 두고 한 번에 미끄러짐
+      var pgs = calVp() && calVp().querySelectorAll(".cal-page");
+      if (pgs && pgs.length === 3) {
+        var tmp = document.createElement("div");
+        tmp.innerHTML = weeksHtml(state.page + dir * steps, todayKey());
+        pgs[dir > 0 ? 2 : 0].replaceWith(tmp.firstChild);
+        marqueeBars();
+      }
+    }
+    state.ymStep = steps;
+    navToday(Math.max(minPage(), state.page + dir * steps));
+    mlineShift(-dir * steps * MS_GAP, CAL_MS);                       // 달 줄 역도 같은 칸 수만큼 같이 미끄러짐
     var hs = calHeights();
     state.calBusy = true;
     if (!state.ymScrub) ymScrub(dir, p0 || 0);
@@ -2188,7 +2203,7 @@
     var done = false, t = $("main").querySelector(".cal-track");
     function settle() {                                         // 움직임이 다 끝난 순간 한 번만 → 바뀐 게 눈에 보이지 않음
       if (done) return; done = true;
-      state.page = Math.max(minPage(), state.page + dir);
+      state.page = Math.max(minPage(), state.page + dir * steps); state.ymStep = 1;
       // 제목은 이미 다 바뀌었음 → 새로 그릴 때 다시 쓰지 않게
       state.ymTxt = ymText(state.page);
       state.ymA = { mask: state.ymTxt.split("").map(function () { return false; }), t0: 0, first: false };
@@ -2272,10 +2287,7 @@
       if (!n && Math.abs(r.dx) > 24 && Date.now() - r.t < 300) n = r.dx < 0 ? 1 : -1;   // 휙 쓸기
       var to = Math.max(minPage(), state.page + n); n = to - state.page;
       if (!n) { mlineShift(0, 220); return; }
-      if (Math.abs(n) === 1) { goPage(to); return; }                 // 한 칸: 달력과 같이 미끄러짐 (calGo 가 역도 맞춰 옮김)
-      mlineShift(-n * MS_GAP, 220);                                  // 여러 칸: 역이 ▼ 밑으로 딱 맞춘 뒤 그 달로
-      state.calBusy = true;
-      setTimeout(function () { state.calBusy = false; goPage(to); }, 230);
+      goPage(to);                                                    // 달력 · 역 모두 그 달까지 같이 미끄러짐 (calGo)
     }
     $("main").addEventListener("pointerup", end);
     $("main").addEventListener("pointercancel", end);
@@ -3243,7 +3255,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.26t";
+  var APP_VERSION = "2026.11.26u";
   var UPD_NOTE = "캘린더 와이드 대응 및 UI 강화";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }

@@ -490,7 +490,10 @@
   .sheet h3 { margin: 0; font: 700 19px var(--font-title); }                 /* 모든 창 제목 같은 크기 */
   #edTitle { display: flex; align-items: baseline; min-width: 0; white-space: nowrap; }
   #edTitle .ttm { flex: none; }
-  #edTitle .ttn { min-width: 0; overflow: hidden; text-overflow: ellipsis; margin-right: 6px; color: #e0426a; }   /* 일정명: 제목과 같은 글씨 · 진한 분홍 (길면 …) */
+  /* 예약 수정 [일정명 수정 중] — 뒤쪽은 작게: 일정명 분홍 굵게 + "수정 중" 회색 (TIMELINE 처럼) */
+  #edTitle .tts { display: flex; align-items: baseline; min-width: 0; margin-left: 10px; font: 700 14px var(--font-body); }
+  #edTitle .ttn { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--hot); }
+  #edTitle .tti { flex: none; margin-left: 5px; font-weight: 500; color: #b5b5bf; }
   .sheet .sub { margin: 6px 0 0; font: 700 15px/1.4 var(--font-body); color: var(--navy); }
   /* 예약 정보: 오는 날 / 가는 날 두 줄 */
   .sinfo { margin-top: 12px; }
@@ -501,7 +504,7 @@
   .stm.none { color: #b0b0ba; }
   .snt { margin-left: auto; font-size: 13px; color: var(--rose); }
   /* 예약하기 · 예약 수정 · 예약 정보 제목: 왼쪽에 막대 (모두 같은 모양) */
-  #sheetbg h3, #actbg h3, #updbg h3 { position: relative; padding-left: 14px; line-height: 1.15; }
+  #sheetbg h3, #actbg h3, #updbg h3 { position: relative; padding-left: 13px; line-height: 1.15; }
   #sheetbg h3::before, #actbg h3::before, #updbg h3::before { content: ''; position: absolute; left: 0; top: 1px; bottom: 1px; width: 4px; border-radius: 2px; background: var(--hot); }
   .flab { display: flex; align-items: center; justify-content: space-between; min-height: 30px; margin-top: 10px; font: 700 14px var(--font-body); color: var(--sub); }
   .flab .chip { height: 30px; padding: 0 12px; font-size: 13px; }
@@ -619,7 +622,7 @@
   #sheetbg .sheet { padding-top: var(--sh-pad); }        /* 예약 정보 창은 X 버튼 줄 때문에 제목이 .28px 아래 → 같은 높이로 맞춤 */
   #sheetbg .actions { margin-top: var(--sh-btn); }                          /* 예약 정보 창과 같은 간격 (:root --sh-btn) */
   #sheetbg .achead + .flab { margin-top: 10px; }                                /* 제목 ↔ 누가 오나요? 여백 */
-  #sheetbg h3::before, #actbg h3::before, #updbg h3::before { top: .5px; bottom: 3.5px; }                             /* 막대 = 글자 위아래와 같은 높이 → 글자가 막대 가운데 (재서 맞춤) */
+  #sheetbg h3::before, #actbg h3::before, #updbg h3::before { top: 2.1px; bottom: 2.7px; }   /* TIMELINE 처럼: 막대는 글자보다 살짝 짧고, 글자가 막대보다 살짝 위 (폰 화면에서 재서 맞춤) */
   #sheetbg .actions button { height: 48px; font-size: 16px; }                 /* 취소 · 저장 = 삭제하기 · 수정하기와 같은 크기 */
   .popbg[data-k="date"] #popTime, .popbg[data-k="time"] #popDate, .popbg[data-k="date"] #edNoTime { display: none; }
   .popbg[data-k="time"] .pop-tag { display: none; }
@@ -2433,9 +2436,10 @@
   function pastMsg(ed) { return ed.mode === "edit" ? "지난 날짜로는 바꿀 수 없어요" : "지난 날짜는 예약할 수 없어요"; }
   function datesOk(ed, come, go) { return pastOk(ed, come, "come") && pastOk(ed, go, "go"); }
 
-  // 제목: "예약하기" / "{일정명} 예약 수정 중" (일정명은 진한 분홍 · 길면 … 으로)
+  // 제목: "예약하기" / "예약 수정  {일정명} 수정 중" (뒤쪽은 작게 · 일정명이 길면 … 으로)
   function setEdTitle(name) {
-    $("edTitle").innerHTML = name == null ? "예약하기" : '<span class="ttn">' + esc(name) + '</span><span class="ttm">예약 수정 중</span>';
+    $("edTitle").innerHTML = name == null ? "예약하기" :
+      '<span class="ttm">예약 수정</span><span class="tts"><span class="ttn">' + esc(name) + '</span><span class="tti">수정 중</span></span>';
   }
   // 수정: 처음 열었을 때와 하나도 다르지 않으면 저장 버튼을 누를 수 없게
   function updSave() {
@@ -2876,6 +2880,50 @@
     sh.style.setProperty("--fox", x + "px"); sh.style.setProperty("--foy", y + "px");
   }
 
+  // ---------- 폰 뒤로가기 ----------
+  //  · 창이 열려 있으면: 맨 위 창만 닫힘 (시간 · 날짜 고르기 → 예약하기 → 달력 순서, 삭제 화면 → 예약 정보)
+  //  · 달력 화면에서: 한 번 누르면 안내만, 2초 안에 한 번 더 누르면 앱이 꺼짐
+  //  · 창이 열릴 때마다 방문 기록을 하나씩 쌓고, 버튼으로 닫으면 그만큼 되돌림 (기록이 남지 않게)
+  (function () {
+    if (!window.history || !history.pushState) return;
+    var depth = 0, skip = false, lastBack = 0, syncQ = false;
+    function want() {
+      var sh = $("actbg").querySelector(".sheet");
+      return (($("actbg").classList.contains("open") || $("sheetbg").classList.contains("open")) ? 1 : 0) +
+        (sh && sh.classList.contains("delmode") ? 1 : 0) + ($("popbg").classList.contains("open") ? 1 : 0);
+    }
+    function sync() {
+      syncQ = false;
+      if (skip) return;                                       // 되돌리는 중이면 끝난 뒤에
+      var d = want();
+      while (depth < d) { history.pushState({ app: "layer" }, ""); depth++; }
+      if (depth > d) { skip = true; var n = depth - d; depth = d; history.go(-n); }
+    }
+    function later() { if (!syncQ) { syncQ = true; setTimeout(sync, 0); } }
+    try { history.replaceState({ app: "base" }, ""); history.pushState({ app: "guard" }, ""); } catch (e) { return; }
+    var mo = new MutationObserver(later);
+    ["actbg", "sheetbg", "popbg"].forEach(function (id) { mo.observe($(id), { attributes: true, attributeFilter: ["class"] }); });
+    mo.observe($("actbg").querySelector(".sheet"), { attributes: true, attributeFilter: ["class"] });
+    window.addEventListener("popstate", function () {
+      if (skip) { skip = false; sync(); return; }             // 버튼으로 닫아서 되돌린 것
+      if (depth > 0) {                                        // 창 하나 닫기
+        depth--;
+        var upd = $("updbg");
+        if (state.killing || (upd && upd.classList.contains("open"))) { later(); return; }   // 지우는 중 · 업데이트 창: 그대로
+        if ($("popbg").classList.contains("open")) closePop();
+        else if ($("actbg").querySelector(".sheet").classList.contains("delmode")) closeDel();
+        else closeAll();
+        later();
+        return;
+      }
+      // 달력 화면: 두 번 눌러 끄기
+      if (Date.now() - lastBack < 2000) { history.back(); return; }
+      lastBack = Date.now();
+      history.pushState({ app: "guard" }, "");
+      toast("한 번 더 누르면 앱이 꺼져요");
+    });
+  })();
+
   $("edCancel").onclick = closeAll;
   $("edClose").onclick = closeAll;
   $("edText").addEventListener("input", updSave);
@@ -3030,7 +3078,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.26i";
+  var APP_VERSION = "2026.11.26j";
   var UPD_NOTE = "캘린더 와이드 대응 및 UI 강화";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }

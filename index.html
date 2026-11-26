@@ -491,9 +491,9 @@
   #edTitle { display: flex; align-items: baseline; min-width: 0; white-space: nowrap; }
   #edTitle .ttm { flex: none; }
   /* 예약 수정 [일정명 수정 중] — 뒤쪽은 작게: 일정명 분홍 굵게 + "수정 중" 회색 (TIMELINE 처럼) */
-  #edTitle .tts { display: flex; align-items: baseline; min-width: 0; margin-left: 10px; font: 700 14px var(--font-body); letter-spacing: -.04em; }   /* 자간 살짝 좁게 */
+  #edTitle .tts { display: flex; align-items: baseline; min-width: 0; margin-left: 10px; font: 700 14px var(--font-body); letter-spacing: -.08em; }   /* 자간 좁게 */
   #edTitle .ttn { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--hot); }
-  #edTitle .tti { flex: none; margin-left: 5px; font-weight: 500; color: #b5b5bf; }
+  #edTitle .tti { flex: none; margin-left: 4px; font-weight: 500; color: #b5b5bf; }
   .sheet .sub { margin: 6px 0 0; font: 700 15px/1.4 var(--font-body); color: var(--navy); }
   /* 예약 정보: 오는 날 / 가는 날 두 줄 */
   .sinfo { margin-top: 12px; }
@@ -516,6 +516,7 @@
   .frow input { flex: 1; font-family: var(--font-num); }
   .frow input[type=text] { font-family: var(--font-body); }
   .frow input:disabled { background: var(--grey); color: #c4c4cc; }
+  .frow input::placeholder { color: #cdcdd5; opacity: 1; font-weight: 500; }   /* 빈 칸 안내 글씨: 옅게 */
   .sheet input:focus { border-color: var(--hot); }
   /* 예약하기 · 예약 수정: 누른 칸(이름 칸 · 오는 날 · 오는 시간 · 가는 날)에 닌텐도 스위치 2 고른 버튼처럼
      분홍 → 연분홍 → 라벤더 그라데이션 테두리가 빙글빙글 돎 */
@@ -886,11 +887,11 @@
     .delov.ready .cfm-ico::before, .delov.ready .cfm-ico::after { display: none; }
   }
 
-  .toast.sb { font: 700 15px var(--font-title); }
   .toast {
     position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 60;
-    max-width: 90%; background: #2a2a35; color: #fff; border-radius: 999px; padding: 12px 18px;
-    font: 600 15px var(--font-body); opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap;
+    max-width: 90%; background: rgba(42, 42, 53, .86); color: #fff; border-radius: 999px; padding: 12px 18px;
+    -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);                       /* 살짝 비치게 */
+    font: 400 15px var(--font-title); -webkit-text-stroke: .35px currentColor;           /* 세방고딕 얇은 글씨 + 살짝 굵게 (모든 안내 같은 모양) */ opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap;
   }
   .toast.show { opacity: 1; }
 
@@ -1000,7 +1001,7 @@
         <button class="acx" id="edClose" aria-label="닫기"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg></button>
       </div>
       <div class="flab">누가 오나요?</div>
-      <div class="frow"><input type="text" id="edText" placeholder="이름을 입력해 주세요" autocomplete="off" enterkeyhint="done"></div>
+      <div class="frow"><input type="text" id="edText" placeholder="예약자 명 입력" autocomplete="off" enterkeyhint="done"></div>
       <div class="flab">색상</div>
       <div class="swatches" id="edColors"></div>
       <!-- 날짜 · 시간: [오는 날 | 오는 시간] (한 덩어리처럼 보이지만 따로 눌림)  [가는 날]
@@ -1277,10 +1278,10 @@
   }
   function saveErr(e) {
     var m = errMsg(e);
-    if (denied(e)) return "초대 링크로 열어 주세요";
-    if (/이미 쓰는 색/.test(m)) return "다른 색을 골라 주세요";
+    if (denied(e)) return "관리자한테 문의해 주세요";
+    if (/이미 쓰는 색/.test(m)) return "다른 색상을 선택해 주세요";
     if (/끝난 일정/.test(m)) return "끝난 일정은 수정 · 삭제할 수 없어요";
-    if (/지난 날짜/.test(m)) return m.replace(/^.*?(지난 날짜)/, "$1").replace(/\.$/, "");
+    if (/지난 날짜/.test(m)) return "지난 날짜는 선택할 수 없어요";
     return "재시도 해주세요";
   }
 
@@ -1362,10 +1363,9 @@
 
   function saveCache() { try { localStorage.setItem(CACHE_KEY, JSON.stringify(state.all)); } catch (e) {} }
 
-  function toast(msg, cls) {
+  function toast(msg) {
     var t = $("toast");
     t.textContent = msg;
-    t.classList.toggle("sb", cls === "sb");                    // sb: 세방고딕 글씨
     t.classList.add("show");
     clearTimeout(toast._t);
     toast._t = setTimeout(function () { t.classList.remove("show"); }, 2600);
@@ -2184,8 +2184,8 @@
   function openAct(id) {
     var b = findBk(id);
     if (!b) return;
-    if (b.delPending) { toast("삭제 대기중이에요"); return; }
-    if (b.pend || b.editPending) { toast("저장 대기중이에요"); return; }
+    if (b.delPending) { toast("삭제 중이에요"); return; }
+    if (b.pend || b.editPending) { toast("예약 저장 중이에요"); return; }
     state.act = b;
     closeDel();
     var day = state.mode === "day" && state.sel && b.come <= state.sel && b.go >= state.sel ? state.sel : null;
@@ -2394,7 +2394,7 @@
   // 저장 · 수정 · 삭제는 한 번에 하나씩: 앞의 저장이 끝나기 전에 또 하면 서버가 줄을 다시 정렬하면서 엉뚱한 예약을 고칠 수 있음
   function waitSave() {
     if (!state.pending) return false;
-    toast("앞의 저장이 끝나면 다시 눌러 주세요");
+    toast("기존 저장이 끝나고 다시 눌러 주세요");
     return true;
   }
   window.appBusy = function () { return !!(state.edit || state.act || state.pending || state.killing); };   // 업데이트 창: 입력 · 저장 중이면 미룸
@@ -2435,7 +2435,7 @@
     if (!isKey(k) || k >= todayKey()) return true;
     return ed.mode === "edit" && !!ed.old && k === ed.old[which];
   }
-  function pastMsg(ed) { return ed.mode === "edit" ? "지난 날짜로는 바꿀 수 없어요" : "지난 날짜는 예약할 수 없어요"; }
+  function pastMsg() { return "지난 날짜는 선택할 수 없어요"; }
   function datesOk(ed, come, go) { return pastOk(ed, come, "come") && pastOk(ed, go, "go"); }
 
   // 제목: "예약하기" / "예약 수정  {일정명} 수정 중" (뒤쪽은 작게 · 일정명이 길면 … 으로)
@@ -2922,7 +2922,7 @@
       if (Date.now() - lastBack < 2000) { history.back(); return; }
       lastBack = Date.now();
       history.pushState({ app: "guard" }, "");
-      toast("한 번 더 누르면 앱이 꺼져요", "sb");
+      toast("한 번 더 뒤로 가기를 누르면 종료돼요");
     });
   })();
 
@@ -2935,12 +2935,12 @@
   });
   $("edSave").onclick = function () {
     var ed = state.edit, text = $("edText").value.trim();
-    if (!text) { toast("이름을 입력해 주세요"); return; }
+    if (!text) { toast("예약자 명을 입력해 주세요"); return; }
     if (!isKey(ed.come)) { toast("오는 날을 골라 주세요"); return; }
     if (!isKey(ed.go)) { toast("가는 날을 골라 주세요"); return; }
     if (ed.go < ed.come) { toast("가는 날을 오는 날 이후로 설정해 주세요"); return; }
     if (!datesOk(ed, ed.come, ed.go)) { toast(pastMsg(ed)); return; }   // 자정이 지나 창을 열어 둔 경우 등
-    if (usedColors(ed.come, ed.go, ed.id)[ed.color]) { toast("다른 색을 골라 주세요"); return; }
+    if (usedColors(ed.come, ed.go, ed.id)[ed.color]) { toast("다른 색상을 선택해 주세요"); return; }
     if (ed.mode === "add") { try { localStorage.setItem(LAST_KEY, JSON.stringify({ text: text, color: ed.color })); } catch (e) {} }
     setBusy(["edSave", "edCancel"], true);
     var req = { mode: ed.mode, id: ed.id || 0, old: ed.old || null, come: ed.come, time: ed.time, go: ed.go, text: text, color: ed.color };
@@ -3009,7 +3009,7 @@
         b.editPending = false;
         state.sig = "";                                                               // 받은 내용으로 반드시 다시 그림
         if (my === state.seq) onAll(all, false); else { renderPage(); if (!state.pending) load(); }
-        toast("수정 완료");
+        toast("저장 완료");
       })
       .withFailureHandler(function (err) {
         state.pending--;
@@ -3080,7 +3080,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.26k";
+  var APP_VERSION = "2026.11.26l";
   var UPD_NOTE = "캘린더 와이드 대응 및 UI 강화";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }

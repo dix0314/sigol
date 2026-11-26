@@ -206,25 +206,30 @@
   .cal { position: relative; z-index: 1; background: #fff; }                  /* 달력 = 앞장 (탭 위에 겹침) */
   /* ---------- 위 탭 하나: [2026. 11 │ 🌳 영주 할매] + 오른쪽 [✓ 12:27] [새로고침] (예전 제목 줄을 없애 위 여백을 줄임) ---------- */
   .calnav { margin-top: 12px; }
-  .cn-tab { height: auto; padding: 0; gap: 0; }
-  .cn-tab .ymw { display: block; padding: 8px 12px 8px 13px; background: #fff7f9; border-top-left-radius: 9px; border-right: 1px solid #efcfd8; }   /* 2026. 11 칸: 더 밝은 분홍 (영주 할매 칸과 나눔) */
-  .cn-tab .nm { display: inline-flex; align-items: center; gap: 5px; padding: 0 15px 2px 11px; font-size: 15.5px; }
-  .calnav .status { margin: 0 0 9px auto; font-size: 11.5px; }
-  .calnav .ibtn { margin: 0 0 7px 2px; width: 32px; height: 32px; border-radius: 50%; }
+  .cn-tab { height: auto; padding: 0; gap: 0; white-space: nowrap; flex: none; }
+  /* 2026. 11 칸: 왼쪽에 처음부터 있던 분홍 막대 + 오른쪽 구분선 (색은 영주 할매 칸과 같음) */
+  .cn-tab .ymw { position: relative; display: block; padding: 7px 11px 7px 21px; }
+  .cn-tab .ymw::before { content: ''; position: absolute; left: 10px; top: calc(50% - 10px); height: 20px; width: 4px; border-radius: 2px; background: #ec3f68; }
+  .cn-tab .ymw::after { content: ''; position: absolute; right: 0; top: 9px; bottom: 9px; width: 1px; background: #efb9c8; }
+  .cn-tab .nm { display: inline-flex; align-items: center; gap: 5px; padding: 0 14px 2px 10px; font-size: 14px; }
+  .cn-right { margin: 0 0 6px auto; display: flex; align-items: center; gap: 6px; }   /* ✓ 12:27 · 새로고침: 위아래 가운데 */
+  .calnav .status { margin: 0; font-size: 11.5px; line-height: 1; }
+  .calnav .ibtn { margin: 0; width: 32px; height: 32px; border-radius: 50%; }
   /* ---------- 아래: [↩ 오늘] 짙은 탭 (달력 뒤에 꽂힘) + 달 줄 (지하철 노선도) ---------- */
   .cbot { position: relative; z-index: 0; display: flex; align-items: flex-start; gap: 10px; margin-top: -1px; }
   .cb-today {
     position: relative; flex: none; display: inline-flex; align-items: center; gap: 5px; height: 35px; padding: 3px 14px 0 11px; border: 0; border-radius: 0 0 10px 10px;
-    background: #3a3540; color: #fff; font: 400 14px/1 var(--font-title); -webkit-text-stroke: .35px currentColor; letter-spacing: .3px;
-    box-shadow: inset 0 7px 6px -5px rgba(0, 0, 0, .55);                      /* 달력 밑으로 들어간 느낌 */
+    background: #ffdfe7; color: var(--rose); border: 1px solid #efcfd8; border-top: 0; font: 400 14px/1 var(--font-title); -webkit-text-stroke: .35px currentColor; letter-spacing: .3px;
+    box-shadow: inset 0 6px 5px -5px rgba(196, 48, 79, .3);                   /* 위 영주 할매 탭과 같은 색 · 달력 밑으로 들어간 느낌 */
     transition: opacity .2s, transform .25s cubic-bezier(.2, .8, .2, 1);
   }
-  .cb-today::after { content: ''; position: absolute; left: 100%; top: 0; width: 13px; height: 12px; transform: scaleY(-1); pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='12'%3E%3Cpath d='M0 0H.5A12 12 0 0 0 12.5 12H0Z' fill='%233a3540'/%3E%3C/svg%3E") no-repeat; }
-  .cb-today:active { background: #2a2630; }
+  .cb-today::after { content: ''; position: absolute; left: 100%; top: 0; width: 13px; height: 12px; transform: scaleY(-1); pointer-events: none; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='12'%3E%3Cpath d='M0 0H.5A12 12 0 0 0 12.5 12H0Z' fill='%23ffdfe7'/%3E%3Cpath d='M.5 0A12 12 0 0 0 12.5 12' fill='none' stroke='%23efcfd8'/%3E%3C/svg%3E") no-repeat; }
+  .cb-today:active { background: #ffd0dc; }
   .cb-today.hid { opacity: 0; transform: translateY(-10px); pointer-events: none; }   /* 이번 달 · 오늘을 보고 있으면 숨김 (자리는 그대로 → 달 줄이 움직이지 않음) */
-  .mline { flex: 1; display: flex; align-items: flex-start; padding: 17px 2px 0 6px; }
+  .mline { flex: 1; display: flex; align-items: flex-start; padding: 17px 0 0 4px; touch-action: pan-y; user-select: none; -webkit-user-select: none; }   /* 손으로 옆으로 쓸면 달이 넘어감 */
+  .mline.drag { transition: none; }
   .mline .ms {
-    position: relative; flex: none; width: 36px; display: flex; flex-direction: column; align-items: center; gap: 6px; margin: -6px 0; padding: 6px 0;
+    position: relative; flex: none; width: 40px; display: flex; flex-direction: column; align-items: center; gap: 6px; margin: -6px 0; padding: 6px 0;
     border: 0; background: none; color: #a99aa1; font: 400 12px/1 var(--font-title); -webkit-text-stroke: .25px currentColor; -webkit-tap-highlight-color: transparent;
   }
   .mline .ms .dot { width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 2px #e8a9ba; transition: transform .15s; }
@@ -235,8 +240,12 @@
   .mline .ms.off { color: #d4d4da; }
   .mline .ms.off .dot { box-shadow: inset 0 0 0 2px #dcdce2; }
   .mline .ms:disabled { cursor: default; }
-  .mline .ln { flex: 1; height: 2px; margin: 4px -7px 0; border-radius: 1px; background: #f0c6d2; }   /* 역 사이 선: 동그라미와 살짝 떨어짐 */
-  .mline .ln.off { background: #e4e4ea; }
+  .mline .ln { flex: 1; height: 2px; margin: 4px -9px 0; border-radius: 1px; background: #a99aa1; opacity: .55; }   /* 역 사이 선: 글자와 같은 색 · 동그라미와 살짝 떨어짐 */
+  .mline .ln.off { background: #d4d4da; opacity: 1; }
+  /* 이번 달(오늘이 있는 달): 다른 달을 보고 있어도 알아보게 — 분홍 테두리 굵게 + 글자 분홍 */
+  .mline .ms.now { color: var(--rose); }
+  .mline .ms.now .dot { box-shadow: inset 0 0 0 3px var(--hot); }
+  .mline .ms.on.now .dot { box-shadow: 0 0 0 3px #ffd3de; }
   .cn-title { margin-right: auto; display: flex; align-items: baseline; gap: 5px; font: 700 20px/1 var(--font-title); color: var(--ink); }
   .cn-year { font: 700 16px/1 var(--font-num); color: var(--sub); letter-spacing: .5px; margin-right: 3px; }
   .cn-arrow { width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; background: var(--grey); color: var(--ink); display: inline-flex; align-items: center; justify-content: center; }
@@ -1675,8 +1684,8 @@
   function ymTitle() {
     var mo = monthOf(state.page), txt = mo.y + ". " + pad(mo.m), a = ymAnim(txt);
     return heroDateSvg(txt, a.first
-      ? { h: 25, draw: a.draw, t: a.t, d0: 0, anim: a.mask, uniform: YM_CHAR_MS, seq: YM_STEP_MS }    // 처음: 2026. 11 이 한 글자씩 차례로
-      : { h: 25, draw: a.draw, t: a.t, d0: 0, anim: a.mask, uniform: YM_FLIP_MS }).svg;                // 넘길 때: 바뀐 글자 동시에
+      ? { h: 22, draw: a.draw, t: a.t, d0: 0, anim: a.mask, uniform: YM_CHAR_MS, seq: YM_STEP_MS }    // 처음: 2026. 11 이 한 글자씩 차례로
+      : { h: 22, draw: a.draw, t: a.t, d0: 0, anim: a.mask, uniform: YM_FLIP_MS }).svg;                // 넘길 때: 바뀐 글자 동시에
   }
 
   // ---------- 화면 ----------
@@ -1857,8 +1866,8 @@
     var tk = todayKey();
     // 위: 달력 뒤에 꽂힌 탭 하나 = [2026. 11 (획 글씨) │ 🌳 영주 할매] ........ [✓ 12:27] [새로고침]
     var h = '<div class="calnav"><div class="cn-tab"><span class="ymw"><span class="ym">' + ymTitle() + '</span></span><span class="nm">' + ICON_TREE + "<span>영주 할매</span></span></div>" +
-      '<span class="status' + (state.err ? " err" : "") + '">' + esc(statusText()) + "</span>" +
-      '<button class="ibtn' + (state.loading ? " spin" : "") + '" data-act="refresh" title="새로고침">' + ICON_REFRESH + "</button></div>";
+      '<span class="cn-right"><span class="status' + (state.err ? " err" : "") + '">' + esc(statusText()) + "</span>" +
+      '<button class="ibtn' + (state.loading ? " spin" : "") + '" data-act="refresh" title="새로고침">' + ICON_REFRESH + "</button></span></div>";
     var slide = state.slide; state.slide = null;
     h += '<div class="cal tabbed' + (slide ? " slide-" + slide : "") + '"><div class="cal-head">' + DAYS_KO.map(function (d, i) {
       return '<span class="' + (i === 0 ? "sun" : "") + '">' + d + "</span>";
@@ -1880,8 +1889,8 @@
     for (var i = -2; i <= 2; i++) {
       var p = pg + i, off = p < mp, mo = monthOf(p);
       if (i > -2) h += '<i class="ln' + (off || p - 1 < mp ? " off" : "") + '"></i>';
-      h += '<button class="ms' + (i === 0 ? " on" : "") + (off ? " off" : "") + '" data-pg="' + p + '"' + (off || !i ? " disabled" : "") + ">" +
-        (i === 0 ? '<b class="mk"></b>' : "") + '<i class="dot"></i><span>' + mo.m + "월</span></button>";
+      h += '<button class="ms' + (i === 0 ? " on" : "") + (p === 0 ? " now" : "") + (off ? " off" : "") + '" data-pg="' + p + '"' + (off || !i ? " disabled" : "") + ">" +
+        (i === 0 ? '<b class="mk"></b>' : "") + '<i class="dot"></i><span>' + pad(mo.y % 100) + ". " + mo.m + "</span></button>";   // 26. 11 (해가 바뀌는 게 보이게)
     }
     return h;
   }
@@ -2063,7 +2072,7 @@
   function ymText(page) { var mo = monthOf(page); return mo.y + ". " + pad(mo.m); }
   // from → to: 바뀐 글자만 (앞 글자는 흐려지며 사라지고, 같은 자리에 새 글자를 차례로 씀)
   //  · 시간은 .ym 의 --t 로 정함 → 손가락 위치로 멈춰 두고 앞뒤로 돌릴 수 있음 / D: 다 바뀌는 데 걸리는 시간(ms)
-  var YM_O = { h: 25, d0: 0, uniform: 340, seq: 120 };
+  var YM_O = { h: 22, d0: 0, uniform: 340, seq: 120 };
   function ymTr(from, to) {
     var diff = to.split("").map(function (c, i) { return c !== from.charAt(i); }), n = 0;
     to.split("").forEach(function (c, i) { if (diff[i] && HD_GLYPHS[c] && HD_GLYPHS[c][1]) n++; });
@@ -2177,6 +2186,47 @@
     ymScrubTo(0, function () { ymScrub(0); state.calBusy = false; });
   }
   $("main").addEventListener("touchend", calDragEnd, { passive: true });
+
+  // ---------- 달 줄(지하철 노선도)을 손으로 쓸어 넘기기 ----------
+  //  · 끄는 동안 줄이 손가락을 따라 움직이고, 놓으면 역 간격만큼 간 수만큼 달이 넘어감 (짧게 휙 쓸면 1칸)
+  //  · 끌었으면 역 누르기(click)는 무시
+  (function () {
+    var d = null, eat = false;
+    $("main").addEventListener("pointerdown", function (e) {
+      var ml = e.target.closest && e.target.closest(".mline");
+      if (!ml || state.calBusy || !e.isPrimary) { d = null; return; }
+      var ss = ml.querySelectorAll(".ms"), gap = ss.length > 1 ? ss[1].getBoundingClientRect().left - ss[0].getBoundingClientRect().left : 70;
+      d = { ml: ml, x: e.clientX, y: e.clientY, dx: 0, on: false, gap: gap || 70, t: Date.now() };
+    });
+    $("main").addEventListener("pointermove", function (e) {
+      if (!d) return;
+      var dx = e.clientX - d.x, dy = e.clientY - d.y;
+      if (!d.on) {
+        if (Math.abs(dx) < 8) return;
+        if (Math.abs(dy) > Math.abs(dx)) { d = null; return; }      // 세로면 화면 스크롤
+        d.on = true; d.ml.classList.add("drag");
+      }
+      if (dx > 0 && !(state.page > minPage())) dx *= .3;             // 시작점보다 앞은 없음 → 고무줄
+      d.dx = dx;
+      d.ml.style.transform = "translateX(" + dx + "px)";
+    });
+    function end() {
+      if (!d) return;
+      var r = d; d = null;
+      if (!r.on) return;
+      eat = true; setTimeout(function () { eat = false; }, 0);
+      var n = Math.round(-r.dx / r.gap);
+      if (!n && Math.abs(r.dx) > 24 && Date.now() - r.t < 300) n = r.dx < 0 ? 1 : -1;   // 휙 쓸기
+      r.ml.style.transition = "transform .25s cubic-bezier(.2, .8, .2, 1)";
+      r.ml.style.transform = "";
+      setTimeout(function () { r.ml.style.transition = ""; r.ml.classList.remove("drag"); }, 260);
+      var to = Math.max(minPage(), state.page + n);
+      if (to !== state.page) goPage(to);
+    }
+    $("main").addEventListener("pointerup", end);
+    $("main").addEventListener("pointercancel", end);
+    $("main").addEventListener("click", function (e) { if (eat && e.target.closest(".mline")) { e.stopPropagation(); e.preventDefault(); } }, true);
+  })();
   $("main").addEventListener("touchcancel", calDragEnd, { passive: true });
 
   // ---------- 창 열고 닫기 ----------
@@ -3139,7 +3189,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.26o";
+  var APP_VERSION = "2026.11.26p";
   var UPD_NOTE = "캘린더 와이드 대응 및 UI 강화";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }

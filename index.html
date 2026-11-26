@@ -491,7 +491,7 @@
   #edTitle { display: flex; align-items: baseline; min-width: 0; white-space: nowrap; }
   #edTitle .ttm { flex: none; }
   /* 예약 수정 [일정명 수정 중] — 뒤쪽은 작게: 일정명 분홍 굵게 + "수정 중" 회색 (TIMELINE 처럼) */
-  #edTitle .tts { display: flex; align-items: baseline; min-width: 0; margin-left: 10px; font: 700 14px var(--font-body); letter-spacing: -.08em; }   /* 자간 좁게 */
+  #edTitle .tts { display: flex; align-items: baseline; min-width: 0; margin-left: 10px; font: 700 14px var(--font-body); letter-spacing: -.06em; }   /* 자간 좁게 (6%) */
   #edTitle .ttn { min-width: 0; overflow: hidden; text-overflow: ellipsis; color: var(--hot); }
   #edTitle .tti { flex: none; margin-left: 4px; font-weight: 500; color: #b5b5bf; }
   .sheet .sub { margin: 6px 0 0; font: 700 15px/1.4 var(--font-body); color: var(--navy); }
@@ -891,7 +891,8 @@
     position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 60;
     max-width: 90%; background: rgba(42, 42, 53, .86); color: #fff; border-radius: 999px; padding: 12px 18px;
     -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);                       /* 살짝 비치게 */
-    font: 400 15px var(--font-title); -webkit-text-stroke: .35px currentColor;           /* 세방고딕 얇은 글씨 + 살짝 굵게 (모든 안내 같은 모양) */ opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap;
+    font: 400 15px var(--font-title); -webkit-text-stroke: .15px currentColor;           /* 세방고딕 얇은 글씨 + 아주 살짝 굵게 (모든 안내 같은 모양) */
+    box-shadow: inset 0 0 0 1px rgba(255, 90, 122, .55), 0 6px 18px -6px rgba(255, 90, 122, .35);   /* 얇은 분홍 테두리 + 은은한 분홍 그림자 */ opacity: 0; transition: opacity .2s; pointer-events: none; white-space: nowrap;
   }
   .toast.show { opacity: 1; }
 
@@ -3080,7 +3081,7 @@
 //  · 쓰는 도중에 새 버전을 다 받으면: "새 버전이 준비됐어요 · 적용" → 누르면 새 버전으로 다시 열림
 // =============================================================
 (function () {
-  var APP_VERSION = "2026.11.26l";
+  var APP_VERSION = "2026.11.26m";
   var UPD_NOTE = "캘린더 와이드 대응 및 UI 강화";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }

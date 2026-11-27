@@ -239,18 +239,12 @@
   }
   .mline .ms { color: var(--yc); }
   .mline .ms span { opacity: .75; }
-  /* 해가 바뀌는 곳(12월 ↔ 1월 사이 선 위)에 연도: 엑소 2 · 선과 같은 색
-     · 글자 전체를 살짝 투명하게 → 뒤의 선이 글자 사이로 은은하게 비침
-     · 흰 테두리는 흐릿하게 번지게 → 선이 탁 잘리지 않고 글자 근처에서 부드럽게 옅어짐
-     · 더 진하게: opacity 를 올림 (선 = .45) / 선이 더 비치게: 테두리 px 를 줄임 */
+  /* 해가 바뀌는 곳(12월 ↔ 1월 사이)에 연도: 선 바로 위에 얹힌 옅은 회색 네모 상자 + 그 해 색 글자 (엑소 2)
+     · 상자 아래 끝이 선 윗면에 딱 붙음 (선 top 18px) → 선은 끊기지 않고 그대로 이어짐 */
   .mline .yrl {
-    position: absolute; z-index: 1; top: 13px; transform: translateX(-50%); pointer-events: none;
-    font: 800 12px/1 'Exo 2', var(--font-body); font-style: normal; letter-spacing: .04em; white-space: nowrap;
-    color: var(--yc); opacity: .6;
-    /* 반투명 흰 획: 번짐 없이 또렷하게 · 두께 고르게 (글자 바깥으로 1.5px 보임)
-       · paint-order: 획을 먼저 그리고 글자를 위에 → 획 안쪽 절반은 글자에 가려짐
-       · 글자 전체가 opacity .6 이라 실제 흰 획은 약 45% → 더 가리려면 .75 를 1 로, 덜 가리려면 .5 로 */
-    -webkit-text-stroke: 3px rgba(255, 255, 255, .75); paint-order: stroke fill;
+    position: absolute; z-index: 1; top: 2px; height: 16px; padding: 0 5px; transform: translateX(-50%); pointer-events: none;
+    display: flex; align-items: center; border-radius: 2px; background: #f1f1f4;
+    font: 800 12px/1 'Exo 2', var(--font-body); font-style: normal; letter-spacing: .04em; white-space: nowrap; color: var(--yc);
   }
   .mline .ms .dot { width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 2px var(--yc); transition: transform .15s; }
   .mline .ms:active:not(:disabled) .dot { transform: scale(1.3); }

@@ -247,11 +247,10 @@
     position: absolute; z-index: 1; top: 13px; transform: translateX(-50%); pointer-events: none;
     font: 800 12px/1 'Exo 2', var(--font-body); font-style: normal; letter-spacing: .04em; white-space: nowrap;
     color: var(--yc); opacity: .6;
-    /* 흐릿한 흰 획: 글자 둘레 1.2px 를 살짝 번지게(1px) 감쌈 + 바깥으로 은은한 번짐 */
-    text-shadow:
-      1.2px 0 1px rgba(255, 255, 255, .9), -1.2px 0 1px rgba(255, 255, 255, .9), 0 1.2px 1px rgba(255, 255, 255, .9), 0 -1.2px 1px rgba(255, 255, 255, .9),
-      .85px .85px 1px rgba(255, 255, 255, .9), -.85px .85px 1px rgba(255, 255, 255, .9), .85px -.85px 1px rgba(255, 255, 255, .9), -.85px -.85px 1px rgba(255, 255, 255, .9),
-      0 0 4px #fff;
+    /* 반투명 흰 획: 번짐 없이 또렷하게 · 두께 고르게 (글자 바깥으로 1.5px 보임)
+       · paint-order: 획을 먼저 그리고 글자를 위에 → 획 안쪽 절반은 글자에 가려짐
+       · 글자 전체가 opacity .6 이라 실제 흰 획은 약 45% → 더 가리려면 .75 를 1 로, 덜 가리려면 .5 로 */
+    -webkit-text-stroke: 3px rgba(255, 255, 255, .75); paint-order: stroke fill;
   }
   .mline .ms .dot { width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 2px var(--yc); transition: transform .15s; }
   .mline .ms:active:not(:disabled) .dot { transform: scale(1.3); }

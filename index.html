@@ -252,7 +252,7 @@
   .mline .ms:disabled { cursor: default; }
   .mline .ln { position: absolute; top: 18px; height: 2px; opacity: .45; }   /* 역 사이 선: 해마다 색 · 역끼리 이어짐 */
   /* 시작점(2026. 11) 앞 역 사이: 회색 점선 (탁탁 끊김) */
-  .mline .ln.dash { opacity: 1; background: repeating-linear-gradient(270deg, #d6d6dd 0 3px, transparent 3px 5.5px); }   /* 촘촘한 점선: 선 3px · 빈칸 2.5px */
+  .mline .ln.dash { opacity: 1; background: repeating-linear-gradient(270deg, #d6d6dd 0 4px, transparent 4px 7px); }   /* 점선: 선 4px · 빈칸 3px */
   /* 이번 달(오늘이 있는 달): 다른 달을 보고 있어도 알아보게 — 분홍 테두리 굵게 + 글자 분홍 */
   .mline .ms.now span { opacity: 1; font-weight: 700; }
   .mline .ms.now .dot { box-shadow: inset 0 0 0 3.5px var(--yc); }
@@ -1925,14 +1925,15 @@
     var n = parseInt(hex.slice(1), 16), f = function (v) { return Math.round(v * (1 - k)); };
     return "rgb(" + f(n >> 16 & 255) + "," + f(n >> 8 & 255) + "," + f(n & 255) + ")";
   }
-  function mlineHtml(pg) {
-    var h = "", mp = minPage();
-    for (var i = -MS_N; i <= MS_N; i++) {
+  // n: 가운데에서 양쪽으로 몇 개 그릴지 (기본 MS_N · 여러 달을 한 번에 건너뛸 때는 그만큼 넓게)
+  function mlineHtml(pg, n) {
+    var h = "", mp = minPage(), N = Math.max(MS_N, n || 0);
+    for (var i = -N; i <= N; i++) {
       var p = pg + i, off = p < mp, mo = monthOf(p), x = i * MS_GAP, c = mlCol(p, mp);
       // 달력 시작점(2026. 11) 앞: 회색 역은 그대로, 역 사이 선만 점선으로 탁탁 끊김
-      if (i > -MS_N && p - 1 < mp) {
+      if (i > -N && p - 1 < mp) {
         h += '<i class="ln dash" style="left:calc(50% + ' + (x - MS_GAP) + "px);width:" + MS_GAP + 'px"></i>';
-      } else if (i > -MS_N) {                                          // 앞 역 → 이 역 선 (해가 바뀌는 칸은 두 색이 이어짐)
+      } else if (i > -N) {                                          // 앞 역 → 이 역 선 (해가 바뀌는 칸은 두 색이 이어짐)
         var c0 = mlCol(p - 1, mp);
         h += '<i class="ln" style="left:calc(50% + ' + (x - MS_GAP) + "px);width:" + MS_GAP + "px;background:" + (c0 === c ? c : "linear-gradient(90deg," + c0 + " 70%," + c + " 100%)") + '"></i>';
       }
@@ -2198,6 +2199,12 @@
       }
     }
     state.ymStep = steps;
+    // 여러 달을 건너뛸 때(예: 먼 미래에서 오늘 버튼): 달 줄 역을 도착하는 달 너머까지 미리 그려 둠
+    //  → 미끄러지는 동안 · 도착한 뒤에도 역과 선이 끊기지 않음
+    if (steps > MS_N - 4) {
+      var mtr = $("main").querySelector(".mtrack");
+      if (mtr) { mtr.style.transition = "none"; mtr.style.transform = ""; mtr.innerHTML = mlineHtml(state.page, steps + 6); void mtr.offsetWidth; }
+    }
     navToday(Math.max(minPage(), state.page + dir * steps));
     mlineShift(-dir * steps * MS_GAP, CAL_MS);                       // 달 줄 역도 같은 칸 수만큼 같이 미끄러짐
     var hs = calHeights();
@@ -3261,7 +3268,7 @@
 // =============================================================
 (function () {
   var APP_VERSION = "2026.11.27d";
-  var UPD_NOTE = "달 줄: 점선 촘촘하게 · 1월 아래 연도 표시";
+  var UPD_NOTE = "오늘 버튼: 먼 달에서도 달 줄이 끊기지 않게";
   var VER_KEY = "pension_ver", el = document.getElementById("upd"), timer = null;
   function get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }
   function set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} }

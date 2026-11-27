@@ -247,7 +247,11 @@
     position: absolute; z-index: 1; top: 13px; transform: translateX(-50%); pointer-events: none;
     font: 800 12px/1 'Exo 2', var(--font-body); font-style: normal; letter-spacing: .04em; white-space: nowrap;
     color: var(--yc); opacity: .6;
-    text-shadow: 0 0 2px #fff, 0 0 4px #fff;
+    /* 흐릿한 흰 획: 글자 둘레 1.2px 를 살짝 번지게(1px) 감쌈 + 바깥으로 은은한 번짐 */
+    text-shadow:
+      1.2px 0 1px rgba(255, 255, 255, .9), -1.2px 0 1px rgba(255, 255, 255, .9), 0 1.2px 1px rgba(255, 255, 255, .9), 0 -1.2px 1px rgba(255, 255, 255, .9),
+      .85px .85px 1px rgba(255, 255, 255, .9), -.85px .85px 1px rgba(255, 255, 255, .9), .85px -.85px 1px rgba(255, 255, 255, .9), -.85px -.85px 1px rgba(255, 255, 255, .9),
+      0 0 4px #fff;
   }
   .mline .ms .dot { width: 10px; height: 10px; border-radius: 50%; background: #fff; box-shadow: inset 0 0 0 2px var(--yc); transition: transform .15s; }
   .mline .ms:active:not(:disabled) .dot { transform: scale(1.3); }

@@ -248,11 +248,8 @@
   .mline .ms.off span { opacity: 1; }
   .mline .ms:disabled { cursor: default; }
   .mline .ln { position: absolute; top: 18px; height: 2px; opacity: .45; }   /* 역 사이 선: 해마다 색 · 역끼리 이어짐 */
-  /* 시작점(2026. 11) 앞: 점선이 탁탁 끊기며 왼쪽으로 흐려짐 (시작 역 쪽부터 끊김 무늬 시작) */
-  .mline .ln.dash {
-    background: repeating-linear-gradient(270deg, var(--dc) 0 6px, transparent 6px 12px);
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 75%); mask-image: linear-gradient(90deg, transparent 0%, #000 75%);
-  }
+  /* 시작점(2026. 11) 앞 역 사이: 회색 점선 (탁탁 끊김) */
+  .mline .ln.dash { opacity: 1; background: repeating-linear-gradient(270deg, #d6d6dd 0 5px, transparent 5px 10px); }
   /* 이번 달(오늘이 있는 달): 다른 달을 보고 있어도 알아보게 — 분홍 테두리 굵게 + 글자 분홍 */
   .mline .ms.now span { opacity: 1; font-weight: 700; }
   .mline .ms.now .dot { box-shadow: inset 0 0 0 3.5px var(--yc); }
@@ -1929,12 +1926,10 @@
     var h = "", mp = minPage();
     for (var i = -MS_N; i <= MS_N; i++) {
       var p = pg + i, off = p < mp, mo = monthOf(p), x = i * MS_GAP, c = mlCol(p, mp);
-      // 달력 시작점(2026. 11) 앞: 역 · 선 없이, 시작 역에서 왼쪽으로 점선이 탁탁 끊기며 흐려짐
-      if (off) continue;
-      if (p === mp) {
-        h += '<i class="ln dash" style="left:calc(50% + ' + (x - MS_GAP * 2) + "px);width:" + (MS_GAP * 2) + "px;--dc:" + c + '"></i>';
-      }
-      if (i > -MS_N && p - 1 >= mp) {                                  // 앞 역 → 이 역 선 (해가 바뀌는 칸은 두 색이 이어짐)
+      // 달력 시작점(2026. 11) 앞: 회색 역은 그대로, 역 사이 선만 점선으로 탁탁 끊김
+      if (i > -MS_N && p - 1 < mp) {
+        h += '<i class="ln dash" style="left:calc(50% + ' + (x - MS_GAP) + "px);width:" + MS_GAP + 'px"></i>';
+      } else if (i > -MS_N) {                                          // 앞 역 → 이 역 선 (해가 바뀌는 칸은 두 색이 이어짐)
         var c0 = mlCol(p - 1, mp);
         h += '<i class="ln" style="left:calc(50% + ' + (x - MS_GAP) + "px);width:" + MS_GAP + "px;background:" + (c0 === c ? c : "linear-gradient(90deg," + c0 + " 70%," + c + " 100%)") + '"></i>';
       }
